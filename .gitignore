@@ -1,3 +1,9 @@
+# Project Specific
+.idea/
+.DS_Store
+.env
+seeds/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

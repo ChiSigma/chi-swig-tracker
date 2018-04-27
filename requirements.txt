@@ -1,0 +1,6 @@
+flask
+flask-orator
+psycopg2
+requests
+authlib
+six
