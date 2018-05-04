@@ -12,6 +12,7 @@ class Drinker(model.Model):
     def sort_by_event(event_type=None, time=None, order=None):
         sorted_drinker_ids = event.Event \
                                     .raw(raw_statement='count(*) as count, drinker_id') \
+                                    .where('event_type_id', '=', event_type) \
                                     .created_within(time=time) \
                                     .group_by('drinker_id') \
                                     .order_by('count', order)

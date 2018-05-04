@@ -3,12 +3,12 @@ from flask_orator import jsonify
 from src.auth.default import protect_events, api_requires_auth
 from src.models.drinker import Drinker
 from src.models.event import Event
+from src.models.event_type import EventType
 
 drinkers = Blueprint('drinkers', __name__)
 
 
 @drinkers.route('/', methods=['GET'])
-@api_requires_auth
 def get_drinkers():
     return jsonify(Drinker.all())
 
@@ -43,7 +43,9 @@ def get_drinker_events(drinker_id):
 @api_requires_auth
 def add_event(drinker_id):
     drinker = Drinker.find_or_fail(drinker_id)
-    event = drinker.events().create(**request.get_json())
+    params = request.get_json()
+    event_type = EventType.find_or_fail(params.get('event_type_id', None))
+    event = drinker.events().create(**params)
 
     return jsonify(event)
 
@@ -54,4 +56,4 @@ def delete_event(drinker_id):
     drinker = Drinker.find_or_fail(drinker_id)
     one_deleted = drinker.events().created_within('30m').last().delete()
 
-    return one_deleted
+    return jsonify(one_deleted)
