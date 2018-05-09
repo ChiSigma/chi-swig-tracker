@@ -1,5 +1,6 @@
 import model
 import event
+import event_type
 from orator.orm import has_many, accessor
 
 class Drinker(model.Model):
@@ -24,7 +25,7 @@ class Drinker(model.Model):
         return event.Event
 
     def event_counts(self):
-        event_sums = {}
+        event_sums = {e_type.name: {window[0]: 0 for window in self.COUNT_WINDOWS} for e_type in event_type.EventType.all()}
         for window in self.COUNT_WINDOWS:
             window_name = window[0]
             time = window[1]

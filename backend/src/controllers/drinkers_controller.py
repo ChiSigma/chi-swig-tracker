@@ -50,10 +50,10 @@ def add_event(drinker_id):
     return jsonify(event)
 
 
-@drinkers.route('/<int:drinker_id>/events', methods=['DELETE'])
+@drinkers.route('/<int:drinker_id>/events/<int:event_type_id>', methods=['DELETE'])
 @api_requires_auth
-def delete_event(drinker_id):
+def delete_event(drinker_id, event_type_id):
     drinker = Drinker.find_or_fail(drinker_id)
-    one_deleted = drinker.events().created_within('30m').last().delete()
+    one_deleted = drinker.events().where(event_type_id=event_type_id).created_within('30m').last().delete()
 
     return jsonify(one_deleted)
