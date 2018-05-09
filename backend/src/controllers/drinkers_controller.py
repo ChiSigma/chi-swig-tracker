@@ -40,7 +40,7 @@ def get_drinker_events(drinker_id):
 
 
 @drinkers.route('/<int:drinker_id>/events', methods=['POST'])
-#@api_requires_auth
+@api_requires_auth
 def add_event(drinker_id):
     drinker = Drinker.find_or_fail(drinker_id)
     params = request.get_json()
@@ -51,7 +51,7 @@ def add_event(drinker_id):
 
 
 @drinkers.route('/<int:drinker_id>/events/<int:event_type_id>', methods=['DELETE'])
-#@api_requires_auth
+@api_requires_auth
 def delete_event(drinker_id, event_type_id):
     drinker = Drinker.find_or_fail(drinker_id)
     event_type = EventType.find_or_fail(event_type_id)
