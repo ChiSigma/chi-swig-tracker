@@ -38,11 +38,5 @@ class Drinker(model.Model):
                 count = event_obj.count
                 event_type_name = event_obj.event_type.name
 
-                event_type_counts = event_sums.get(event_type_name, {})
-                event_sums[event_type_name] = event_type_counts
-
-                event_type_time_count = event_type_counts.get(window_name, 0)
-                event_type_counts[window_name] = event_type_time_count
-
                 event_sums[event_type_name][window_name] += count
         return event_sums
