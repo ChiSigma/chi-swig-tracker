@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from flask_orator import jsonify
-from src.auth.default import protect_events, api_requires_auth
+from src.auth.default import protect_events, api_requires_auth, api_requires_body, api_requires_types
 from src.models.drinker import Drinker
 from src.models.event import Event
 from src.models.event_type import EventType
@@ -28,9 +28,24 @@ def sort_drinkers():
 
 @drinkers.route('/<int:drinker_id>/is_public', methods=['PUT'])
 @api_requires_auth
+@api_requires_body('is_public')
+@api_requires_types(is_public=bool)
 def update_is_public(drinker_id):
     drinker = Drinker.find_or_fail(drinker_id)
-    drinker.update(**request.get_json())
+    body = request.get_json()
+    drinker.update(is_public=request.get_json()['is_public'])
+
+    return jsonify(drinker)
+
+
+@drinkers.route('/<int:drinker_id>/bio_line', methods=['PUT'])
+@api_requires_auth
+@api_requires_body('bio_line')
+@api_requires_types(bio_line=str)
+def update_bio_line(drinker_id):
+    drinker = Drinker.find_or_fail(drinker_id)
+    body = request.get_json()
+    drinker.update(bio_line=request.get_json()['bio_line'])
 
     return jsonify(drinker)
 

@@ -5,7 +5,7 @@ import hashlib
 from orator.orm import has_many, accessor
 
 class Drinker(model.Model):
-    __fillable__ = ['is_public']
+    __fillable__ = ['is_public', 'bio_line']
     __hidden__   = ['events']
     # (Name for the frontend, window for querying the db)
     COUNT_WINDOWS = [('Past Day', '24h'), ('Past Week', '7d'), ('All Time', '*')]

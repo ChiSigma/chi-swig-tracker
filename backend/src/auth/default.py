@@ -1,6 +1,7 @@
 import requests
 from src.app import auth, app
-from flask import Blueprint, session, redirect, url_for
+from src.support import decorators
+from flask import Blueprint, session, redirect, url_for, request
 from flask_orator import jsonify
 from functools import wraps
 from six.moves.urllib.parse import urlencode
@@ -60,6 +61,32 @@ def api_requires_auth(f):
     if 'profile' not in session:
       # Redirect to Login page here
       return jsonify(False)
+    return f(*args, **kwargs)
+    
+  return decorated
+
+@decorators.parametrized
+def api_requires_body(f, *params):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    body = request.get_json()
+
+    if len(list(set(params) & set(body.keys()))) != len(params):
+      return jsonify(False)
+    return f(*args, **kwargs)
+    
+  return decorated
+
+
+@decorators.parametrized
+def api_requires_types(f, **body_types):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    body = request.get_json()
+
+    for key, v_type in body_types.iteritems():
+        if type(body[key]) is not v_type:
+            return jsonify(False)
     return f(*args, **kwargs)
     
   return decorated
