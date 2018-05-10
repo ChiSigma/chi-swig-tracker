@@ -33,7 +33,7 @@ def sort_drinkers():
 def update_is_public(drinker_id):
     drinker = Drinker.find_or_fail(drinker_id)
     body = request.get_json()
-    drinker.update(is_public=request.get_json()['is_public'])
+    drinker.update(is_public=body['is_public'])
 
     return jsonify(drinker)
 
@@ -45,7 +45,47 @@ def update_is_public(drinker_id):
 def update_bio_line(drinker_id):
     drinker = Drinker.find_or_fail(drinker_id)
     body = request.get_json()
-    drinker.update(bio_line=request.get_json()['bio_line'])
+    drinker.update(bio_line=body['bio_line'])
+
+    return jsonify(drinker)
+
+
+@drinkers.route('/<int:drinker_id>/profile_photos', methods=['PUT'])
+@api_requires_auth
+@api_requires_body('profile_photos')
+@api_requires_types(profile_photos=str)
+def update_profile_photos(drinker_id):
+    drinker = Drinker.find_or_fail(drinker_id)
+    body = request.get_json()
+    raw_profile_photos = body['profile_photos']
+    profile_photos = ','.join([url.strip() for url in raw_profile_photos.split(',')])
+    drinker.update(profile_photos=profile_photos)
+
+    return jsonify(drinker)
+
+
+@drinkers.route('/<int:drinker_id>/profile_pivot_type', methods=['PUT'])
+@api_requires_auth
+@api_requires_body('profile_pivot_type')
+@api_requires_types(profile_pivot_type=int)
+def update_profile_pivot_type(drinker_id):
+    drinker = Drinker.find_or_fail(drinker_id)
+    body = request.get_json()
+    profile_pivot_type = body['profile_pivot_type']
+    event_type = EventType.find_or_fail(profile_pivot_type)
+    drinker.update(profile_pivot_type=profile_pivot_type)
+
+    return jsonify(drinker)
+
+
+@drinkers.route('/<int:drinker_id>/profile_pivot_increment', methods=['PUT'])
+@api_requires_auth
+@api_requires_body('profile_pivot_increment')
+@api_requires_types(profile_pivot_increment=int)
+def update_profile_pivot_increment(drinker_id):
+    drinker = Drinker.find_or_fail(drinker_id)
+    body = request.get_json()
+    drinker.update(profile_pivot_increment=body['profile_pivot_increment'])
 
     return jsonify(drinker)
 

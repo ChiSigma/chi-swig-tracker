@@ -6,7 +6,8 @@ from orator.orm import has_many, accessor
 
 class Drinker(model.Model):
     __fillable__ = ['is_public', 'bio_line']
-    __hidden__   = ['events']
+    __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos']
+    __appends__  = ['profile_photo']
     # (Name for the frontend, window for querying the db)
     COUNT_WINDOWS = [('Past Day', '24h'), ('Past Week', '7d'), ('All Time', '*')]
 
@@ -29,6 +30,20 @@ class Drinker(model.Model):
     @has_many
     def events(self):
         return event.Event
+
+    @accessor
+    def profile_photos(self):
+        return self.get_raw_attribute('profile_photos').split(',')
+
+    @accessor
+    def profile_photo(self):
+        event_count = self.events() \
+                                    .where('event_type_id', '=', self.profile_pivot_type) \
+                                    .created_within(time='24h') \
+                                    .count()
+        photo_index = min(int(event_count / self.profile_pivot_increment), len(self.profile_photos) - 1)
+
+        return self.profile_photos[photo_index]
 
     def event_counts(self):
         event_sums = {e_type.name: {window[0]: 0 for window in self.COUNT_WINDOWS} for e_type in event_type.EventType.all()}
