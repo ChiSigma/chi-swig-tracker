@@ -36,7 +36,7 @@ def callback_handling():
 def login():
   if not current_user.is_anonymous:
     return redirect(url_for('index'))
-    
+
   oauth = OAuthSignIn.get_provider()
   return oauth.authorize()
 
@@ -50,7 +50,7 @@ def logout():
 @auth_routes.route('/me')
 def get_me():
   if not current_user.is_anonymous:
-        return jsonify(current_user)
+    return jsonify(current_user)
   return jsonify({})
 
 
