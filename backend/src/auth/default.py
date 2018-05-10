@@ -1,5 +1,5 @@
 import requests
-from src.app import auth, app
+from src.app import app
 from src.models.drinker import Drinker
 from src.auth.oauth import OAuthSignIn
 from src.support import decorators
@@ -7,7 +7,6 @@ from flask import Blueprint, session, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, current_user 
 from flask_orator import jsonify
 from functools import wraps
-from six.moves.urllib.parse import urlencode
 
 auth_routes = Blueprint('auth_routes', __name__)
 
