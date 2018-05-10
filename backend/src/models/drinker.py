@@ -2,9 +2,11 @@ import model
 import event
 import event_type
 import hashlib
+from src.app import lm
+from flask_login import UserMixin
 from orator.orm import has_many, accessor
 
-class Drinker(model.Model):
+class Drinker(UserMixin, model.Model):
     __fillable__ = ['is_public', 'bio_line']
     __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos']
     __appends__  = ['profile_photo']
@@ -26,6 +28,10 @@ class Drinker(model.Model):
     def version():
         updated_times = Drinker.order_by('id').get().pluck('updated_at')
         return hashlib.md5(str([ut for ut in updated_times])).hexdigest()
+
+    @lm.user_loader
+    def load_user(id):
+        return Drinker.find(id)
 
     @has_many
     def events(self):
