@@ -1,6 +1,7 @@
 import model
 import event
 import event_type
+import hashlib
 from orator.orm import has_many, accessor
 
 class Drinker(model.Model):
@@ -19,6 +20,11 @@ class Drinker(model.Model):
                                     .order_by('count', order)
 
         return sorted_drinker_ids.with_('drinker').get().map(lambda e: e.drinker)
+
+    @staticmethod
+    def version():
+        updated_times = Drinker.order_by('id').get().pluck('updated_at')
+        return hashlib.md5(str([ut for ut in updated_times])).hexdigest()
 
     @has_many
     def events(self):

@@ -10,7 +10,12 @@ drinkers = Blueprint('drinkers', __name__)
 
 @drinkers.route('/', methods=['GET'])
 def get_drinkers():
-    return jsonify(Drinker.all())
+    return jsonify({'drinkers': Drinker.all().serialize(), 'version': Drinker.version()})
+
+
+@drinkers.route('/version', methods=['GET'])
+def get_version():
+    return jsonify(Drinker.version())
 
 
 @drinkers.route('/sort', methods=['GET'])
@@ -39,13 +44,12 @@ def get_drinker_events(drinker_id):
         return jsonify(drinker.event_counts())
 
 
-@drinkers.route('/<int:drinker_id>/events', methods=['POST'])
+@drinkers.route('/<int:drinker_id>/events/<int:event_type_id>', methods=['POST'])
 @api_requires_auth
-def add_event(drinker_id):
+def add_event(drinker_id, event_type_id):
     drinker = Drinker.find_or_fail(drinker_id)
-    params = request.get_json()
-    event_type = EventType.find_or_fail(params.get('event_type_id', None))
-    event = drinker.events().create(**params)
+    event_type = EventType.find_or_fail(event_type_id)
+    event = drinker.events().create(event_type_id=event_type_id)
 
     return jsonify(event)
 

@@ -4,7 +4,8 @@ import model
 from orator.orm import belongs_to, scope
 
 class Event(model.Model):
-    __fillable__ = ['drinker_id', 'event_type_id']
+    __fillable__ = ['event_type_id']
+    __touches__ = ['drinker']
 
     @belongs_to
     def drinker(self):
