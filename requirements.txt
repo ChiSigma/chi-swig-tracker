@@ -1,6 +1,5 @@
 flask
+flask-login
+rauth
 flask-orator
-psycopg2
 requests
-authlib
-six

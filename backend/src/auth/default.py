@@ -1,72 +1,97 @@
 import requests
-from src.app import auth, app
-from flask import Blueprint, session, redirect, url_for
+from src.app import app
+from src.models.drinker import Drinker
+from src.auth.oauth import OAuthSignIn
+from src.support import decorators
+from flask import Blueprint, session, redirect, url_for, request, flash
+from flask_login import login_user, logout_user, current_user 
 from flask_orator import jsonify
 from functools import wraps
-from six.moves.urllib.parse import urlencode
 
 auth_routes = Blueprint('auth_routes', __name__)
 
 
 @auth_routes.route('/callback')
 def callback_handling():
-    # Handles response from token endpoint
-    resp = auth.authorize_access_token()
+  if not current_user.is_anonymous:
+    return redirect(url_for('index'))
 
-    url = app.config['AUTH_CONFIG']['api_base_url'] + '/userinfo'
-    headers = {'authorization': 'Bearer ' + resp['access_token']}
-    resp = requests.get(url, headers=headers)
-    userinfo = resp.json()
+  oauth = OAuthSignIn.get_provider()
+  drinker_id = oauth.callback()
+  if drinker_id is None:
+      flash('Authentication failed.')
+      return redirect(url_for('index'))
 
-    # Store the tue user information in flask session.
-    session['jwt_payload'] = userinfo
+  drinker = Drinker.find(drinker_id)
+  if not drinker:
+    flash('Unknown drinker ID came back from OAuth.')
+    return redirect(url_for('index'))
 
-    verified = userinfo.get('app_metadata', {}).get('verified', False)
-
-    if verified:
-        session['profile'] = {
-            'user_id': userinfo['sub'],
-            'name': userinfo['name'],
-            'email': userinfo.get('email', 'unknown@example.com')
-        }
-    else:
-        session.clear()
-
-    return redirect('/')
+  login_user(drinker, True)
+  return redirect(url_for('index'))
 
 
 @auth_routes.route('/login')
 def login():
-    return auth.authorize_redirect(redirect_uri=app.config['REDIRECT_URI'], audience=app.config['AUTH_CONFIG']['api_base_url'] + '/userinfo')
+  if not current_user.is_anonymous:
+    return redirect(url_for('index'))
+
+  oauth = OAuthSignIn.get_provider()
+  return oauth.authorize()
 
 
 @auth_routes.route('/logout')
 def logout():
-    # Clear session stored data
-    session.clear()
-    # Redirect user to logout endpoint
-    params = {'returnTo': app.config['HOME_URI'], 'client_id': app.config['AUTH_CONFIG']['client_id']}
-    return redirect(auth.api_base_url + '/v2/logout?' + urlencode(params))
+  logout_user()
+  return redirect(url_for('index'))
 
 
 @auth_routes.route('/me')
 def get_me():
-    return jsonify(session.get('profile', {}))
+  if not current_user.is_anonymous:
+    return jsonify(current_user)
+  return jsonify({})
 
 
 def api_requires_auth(f):
   @wraps(f)
   def decorated(*args, **kwargs):
-    if 'profile' not in session:
+    if current_user.is_anonymous:
       # Redirect to Login page here
       return jsonify(False)
     return f(*args, **kwargs)
     
   return decorated
 
+@decorators.parametrized
+def api_requires_body(f, *params):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    body = request.get_json()
+
+    if len(list(set(params) & set(body.keys()))) != len(params):
+      return jsonify(False)
+    return f(*args, **kwargs)
+    
+  return decorated
+
+
+@decorators.parametrized
+def api_requires_types(f, **body_types):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    body = request.get_json()
+
+    for key, v_type in body_types.iteritems():
+        if type(body[key]) is not v_type:
+            return jsonify(False)
+    return f(*args, **kwargs)
+    
+  return decorated
+
 
 def protect_events(drinker=None):
-    if not drinker.is_public and ('profile' not in session):
+    if not drinker.is_public and current_user.is_anonymous:
         return True
     else:
         return False
