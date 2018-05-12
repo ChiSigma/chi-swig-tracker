@@ -1,9 +1,67 @@
 /* App-specific styles */
 
-.miniProfileCard {
+/* Card Styles */
+.mini-profile-card {
     border-radius: 50px;
 }
 
+.profile-card {
+    width: 300px !important;
+    height: 400px !important;
+}
+
+.card-icon {
+    margin-left: 210px;
+    margin-top: 5px;
+}
+
+.flip-container {
+    perspective: 1000;
+}
+
+.flip-container:hover .flipper,
+.flip-container.hover .flipper {
+    transform: rotateY(180deg);
+}
+
+.flip-container,
+.card-front,
+.card-back {
+    width: 300px;
+    height: 400px;
+    margin: 0 auto;
+}
+
+.flipper {
+    transition: 1s;
+    transform-style: preserve-3d;
+    position: relative;
+}
+
+.card-front,
+.card-back {
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.card-front {
+    z-index: 2;
+    transform: rotateY(0deg);
+}
+
+.card-back {
+    transform: rotateY(180deg);
+}
+
+.flip-container:focus .flipper,
+.flip-container.focus .flipper,
+.flip-container.flip .flipper {
+    transform: rotateY(180deg);
+}
+
+/* Backgrounds */
 .shadow-med {
     -webkit-box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
     box-shadow: 0 .5rem 2rem rgba(0,0,0,.175) !important;
@@ -11,6 +69,10 @@
 
 .bg-red {
     background-color: #e53230;
+}
+
+.bg-gray-transparent {
+    background-color: rgba(100, 100, 100, 0.5) !important;
 }
 
 .bg-plus {
@@ -32,4 +94,8 @@
 .rounded-corners {
     border-top-left-radius: 1rem!important;
     border-bottom-right-radius: 1rem!important;
+}
+
+.table th, .table td {
+    padding: 0px !important;
 }

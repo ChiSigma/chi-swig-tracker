@@ -18,7 +18,7 @@ export default class MiniProfileCard extends React.Component {
 
     render() {
         return (
-            <div className="miniProfileCard shadow-med px-2 py-1" onClick={ this.handleClick.bind(this) } >
+            <div className="mini-profile-card shadow-med px-2 py-1" onClick={ this.handleClick.bind(this) } >
                 <div className="d-flex align-items-center my-2">
                     <div className="rounded mx-3">
                         <img src={ this.profilePhoto } alt="profile_photo" className="rounded-circle" width="70px" />
