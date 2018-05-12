@@ -1,2 +1,35 @@
 /* App-specific styles */
 
+.miniProfileCard {
+    border-radius: 50px;
+}
+
+.shadow-med {
+    -webkit-box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+    box-shadow: 0 .5rem 2rem rgba(0,0,0,.175) !important;
+}
+
+.bg-red {
+    background-color: #e53230;
+}
+
+.bg-plus {
+    background: radial-gradient(circle, transparent 20%, #ffffff 20%, #ffffff 80%, transparent 10%, transparent),
+    radial-gradient(circle, transparent 20%, #ffffff 20%, #ffffff 80%, transparent 10%, transparent) 25px 25px,
+    linear-gradient(#f7f7f7 4px, transparent 4px) 0 -2px,
+    linear-gradient(90deg, #f7f7f7 4px, transparent 4px) -2px 0;
+    background-color: #ffffff;
+    background-size:50px 50px,
+    50px 50px,
+    25px 25px,
+    25px 25px;
+}
+
+.border-med {
+    border: 3px solid #f7f7f7;
+}
+
+.rounded-corners {
+    border-top-left-radius: 1rem!important;
+    border-bottom-right-radius: 1rem!important;
+}

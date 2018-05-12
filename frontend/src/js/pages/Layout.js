@@ -3,6 +3,7 @@
  */
 import React from 'react';
 
+import CardContainer from '../components/CardContainer';
 import Navigation from '../components/Navigation';
 import Subheader from '../components/Subheader';
 
@@ -13,7 +14,7 @@ export default class Layout extends React.Component {
             <div>
                 <Navigation />
                 <Subheader />
-                <p>[body]</p>
+                <CardContainer />
                 <p>[footer]</p>
             </div>
         )
