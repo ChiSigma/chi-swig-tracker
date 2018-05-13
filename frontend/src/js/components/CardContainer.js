@@ -12,45 +12,52 @@ export default class SortWidget extends React.Component {
 
         // TODO :: make request to drinkers to get the ID list
         this.state = {
-            activeProfile: 0, // main, active profile ID
-            profiles: [0, 0, 0, 0],
-            show: false
+            show: false,
+            profiles: [1, 2, 3, 4]
         }; // main
         
-        this.profileID = 1;
+        this.activeProfile = 1;
 
         this.handleShow = this.handleShow.bind(this);
         this.handleClose = this.handleClose.bind(this);
     }
 
     handleClose() {
-        this.setState({ show: false });
+        this.setState({ show: false })
     }
 
     handleShow() {
-        this.setState({ show: true });
+        console.log('showing the modal');
+        this.setState({ show: true })
     }
 
     changeActiveProfile(activeProfile) {
         console.log('changing active profile!');
-        this.setState({ activeProfile })
+        this.activeProfile = activeProfile;
+        this.handleShow();
     }
     
     render() {
-        const miniProfiles = this.state.profiles.map((profileID) =>
+        const miniProfiles = this.state.profiles.map((activeProfile) =>
             <div className="m-4">
-                <MiniProfileCard changeActiveProfile={ this.changeActiveProfile.bind(this) } profileID={ this.profileID } />
+                <MiniProfileCard changeActiveProfile={ this.changeActiveProfile.bind(this) } activeProfile={ activeProfile } />
             </div>
         );
-        return (
-            <div className="container pt-4">
-                <div className="modal">
-                    <div className="bg-gray-transparent modal-backdrop h-100 d-flex justify-content-center align-items-center">
-                        <div className="flip-container">
-                            <ProfileCard />
-                        </div>
+        const modal = this.state.show ? (
+            <div className="d-block modal">
+                <div className="bg-gray-transparent modal-backdrop h-100 d-flex justify-content-center align-items-center" onClick={ this.handleClose }>
+                    <div className="flip-container">
+                        <ProfileCard profileID={ this.activeProfile } />
                     </div>
                 </div>
+            </div>
+        ) : (
+            console.log('hiding the modal!')
+        );
+
+        return (
+            <div className="container pt-4">
+                { modal }
                 <div className="row">
                     <div className="d-flex align-items-baseline justify-content-center flex-wrap">
                             { miniProfiles }

@@ -12,8 +12,8 @@ export default class MiniProfileCard extends React.Component {
     }
 
     handleClick(e) {
-        console.log('handling click to change active profile');
-        this.props.changeActiveProfile(this.props.profileID);
+        console.log('handling click to change active profile to: ' + this.props.activeProfile);
+        this.props.changeActiveProfile(this.props.activeProfile);
     }
 
     render() {
