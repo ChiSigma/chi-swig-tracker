@@ -14,26 +14,31 @@ export default class ProfileCard extends React.Component {
         // using dummy data for now
         this.eventData = {
             "Blacked Out": {
+                "id": 3,
                 "All Time": 3,
                 "Past Day": 0,
                 "Past Week": 0
             },
             "Cleaned": {
+                "id": 4,
                 "All Time": 3,
                 "Past Day": 0,
                 "Past Week": 0
             },
             "Cooked": {
+                "id": 5,
                 "All Time": 3,
                 "Past Day": 0,
                 "Past Week": 0
             },
             "Drank": {
+                "id": 1,
                 "All Time": 3,
                 "Past Day": 0,
                 "Past Week": 0
             },
             "Puked": {
+                "id": 2,
                 "All Time": 3,
                 "Past Day": 0,
                 "Past Week": 0
@@ -54,13 +59,13 @@ export default class ProfileCard extends React.Component {
             if (!this.eventData.hasOwnProperty(eventType)) {
                 continue;
             }
-            // TODO :: need event type ID's here to get this linked up; currently, this.props.eventTypes can't be accessed via event names (also this is raw HTML, not a string - needs to be wrapped in a <td>)
-            // let button = <EventButton newDrinkEvent={ this.newDrinkEvent.bind(this) } eventType={ ____ } />;
+
+            let button = '<td>' + <EventButton newDrinkEvent={ this.newDrinkEvent.bind(this) } eventType={ this.eventData[eventType]["id"] } /> + '</td>';
             let rowTitle = '<th>' + eventType + '</th>';
             let rowAllTime = '<td>' + this.eventData[eventType]["All Time"] + '</td>';
             let rowPastDay = '<td>' + this.eventData[eventType]["Past Day"] + '</td>';
             let rowPastWeek = '<td>' + this.eventData[eventType]["Past Week"] + '</td>';
-            tableData += '<tr>' + rowTitle + rowAllTime + rowPastDay + rowPastWeek + '</tr>';
+            tableData += '<tr>' + button + rowTitle + rowAllTime + rowPastDay + rowPastWeek + '</tr>';
         }
 
         // TODO :: uncomment the following block to enable privacy settings
