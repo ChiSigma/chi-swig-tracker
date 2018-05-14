@@ -9,9 +9,9 @@ export default class ProfileCard extends React.Component {
     constructor(props) {
         super(props);
 
-        // TODO :: given [this.props.activeProfile], get drinker events data
+        // this.response = // TODO :: make request to /api/drinkers/[this.props.profile["id"]/events/
         // using dummy data for now
-        this.profileInfo = {
+        this.eventData = {
             "Blacked Out": {
                 "All Time": 3,
                 "Past Day": 0,
@@ -38,29 +38,41 @@ export default class ProfileCard extends React.Component {
                 "Past Week": 0
             }
         };
-
-        // TODO :: given [this.props.activeProfile], get drinker profile photo url
-        this.profilePhoto = 'https://media.licdn.com/dms/image/C4E03AQHzXHptRd-cHg/profile-displayphoto-shrink_200_200/0?e=1531353600&v=beta&t=A5jkjzccz4PBvdNXggFFPwavsEorI6rXot2eRLn-iaY';
     }
 
     render() {
+        // Definitely a better, more React-ish way to do this but it works for now
+        // TODO :: use this.props.eventTypes to build the action icons
         let tableData = '<thead><tr><th>Event Type</th><th>All Time</th><th>Past Day</th><th>Past Week</th></tr></thead>';
-        for (var eventType in this.profileInfo) {
-            if (!this.profileInfo.hasOwnProperty(eventType)) {
+        for (var eventType in this.eventData) {
+            if (!this.eventData.hasOwnProperty(eventType)) {
                 continue;
             }
             let rowTitle = '<th>' + eventType + '</th>';
-            let rowAllTime = '<td>' + this.profileInfo[eventType]["All Time"] + '</td>';
-            let rowPastDay = '<td>' + this.profileInfo[eventType]["Past Day"] + '</td>';
-            let rowPastWeek = '<td>' + this.profileInfo[eventType]["Past Week"] + '</td>';
+            let rowAllTime = '<td>' + this.eventData[eventType]["All Time"] + '</td>';
+            let rowPastDay = '<td>' + this.eventData[eventType]["Past Day"] + '</td>';
+            let rowPastWeek = '<td>' + this.eventData[eventType]["Past Week"] + '</td>';
             tableData += '<tr>' + rowTitle + rowAllTime + rowPastDay + rowPastWeek + '</tr>';
         }
+
+        // TODO :: uncomment the following block to enable privacy settings
+         let tableClasses = "table mb-0";
+        // if (!this.props.profile["is_public"]) {
+        //    tableClasses += 'mask-values';
+        // }
+
+        // TODO :: const profilePhoto = this.props.profile["profile_photo"];
+        const profilePhoto = 'https://media.licdn.com/dms/image/C4E03AQHzXHptRd-cHg/profile-displayphoto-shrink_200_200/0?e=1531353600&v=beta&t=A5jkjzccz4PBvdNXggFFPwavsEorI6rXot2eRLn-iaY';
+        // TODO :: const bio = this.props.profile["bio_line"];
+        const bio = 'I smell like lemonssss.';
+        // TODO :: const name = this.props.profile["name"];
+        const name = 'Melons';
 
         return (
             <div className="profile-card flipper">
                 <div className="card-front shadow-lg bg-plus p-3">
                     <div className="bg-red rounded-corners p-1">
-                        <img src={ this.profilePhoto } alt="profile_photo_active"
+                        <img src={ profilePhoto } alt="profile_photo_active"
                              className="border-med border-dark rounded-corners w-100"/>
                     </div>
                     <div className="bg-white border-med border-dark rounded-circle position-absolute card-icon">
@@ -68,24 +80,24 @@ export default class ProfileCard extends React.Component {
                     </div>
                     <div className="text-uppercase mt-4">
                         <h4 className="text-black-50 mb-1">First Name</h4>
-                        <h2 className="text-red mb-0">Last Name</h2>
+                        <h2 className="text-red mb-0">{ name }</h2>
                     </div>
                 </div>
                 <div className="card-back shadow-lg bg-plus p-3">
                     <div className="bg-red rounded-circle position-absolute card-icon p-1">
-                        <img src={ this.profilePhoto } width="50px" alt="profile_photo_active"
+                        <img src={ profilePhoto } width="50px" alt="profile_photo_active"
                              className="border-med border-dark rounded-circle "/>
                     </div>
                     <div className="text-uppercase ml-1 mt-3">
                         <h4 className="text-black-50 mb-1">First Name</h4>
-                        <h2 className="text-red mb-0">Last Name</h2>
+                        <h2 className="text-red mb-0">{ name }</h2>
                     </div>
                     <div className="bg-white border border-dark rounded m-1 p-2">
-                        <table className="table mb-0" dangerouslySetInnerHTML={{ __html: tableData }} />
+                        <table className={ tableClasses } dangerouslySetInnerHTML={{ __html: tableData }} />
                     </div>
                     <div className="p-2">
                         <span className="font-weight-bold">Highlight Reel</span>
-                        <i className="text-black-50 small d-block">"I smell like lemonssss."</i>
+                        <i className="text-black-50 small d-block">{ bio }</i>
                     </div>
                 </div>
             </div>

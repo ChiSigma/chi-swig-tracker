@@ -6,17 +6,18 @@ import React from 'react';
 import MiniProfileCard from './MiniProfileCard';
 import ProfileCard from './ProfileCard';
 
-export default class SortWidget extends React.Component {
-    constructor() {
-        super();
+export default class CardContainer extends React.Component {
+    constructor(props) {
+        super(props);
 
-        // TODO :: make request to drinkers to get the ID list
+        // this.response = // TODO :: make request to /api/drinkers/
+        // this.profileData = response["drinkers"];
         this.state = {
             show: false,
             profiles: [1, 2, 3, 4]
         }; // main
         
-        this.activeProfile = 1;
+        this.activeProfile = 1; // this.profileData[0]["id"]
 
         this.handleShow = this.handleShow.bind(this);
         this.handleClose = this.handleClose.bind(this);
@@ -38,6 +39,7 @@ export default class SortWidget extends React.Component {
     }
     
     render() {
+        // TODO :: change this to map over this.profileData
         const miniProfiles = this.state.profiles.map((activeProfile) =>
             <div className="m-4">
                 <MiniProfileCard changeActiveProfile={ this.changeActiveProfile.bind(this) } activeProfile={ activeProfile } />
@@ -47,7 +49,7 @@ export default class SortWidget extends React.Component {
             <div className="d-block modal">
                 <div className="bg-gray-transparent modal-backdrop h-100 d-flex justify-content-center align-items-center" onClick={ this.handleClose }>
                     <div className="flip-container">
-                        <ProfileCard profileID={ this.activeProfile } />
+                        <ProfileCard profile={ this.activeProfile } eventTypes={ this.props.eventTypes } />
                     </div>
                 </div>
             </div>

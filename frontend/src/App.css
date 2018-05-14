@@ -99,3 +99,5 @@
 .table th, .table td {
     padding: 0px !important;
 }
+
+/* TODO :: make the {.table > .mask-data td} thing to add a blurry layer over the values */
