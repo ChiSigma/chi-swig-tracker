@@ -4,12 +4,13 @@
 import React from 'react';
 
 import crestIcon from '../../assets/crestIcon.png';
+import EventButton from './EventButton';
 
 export default class ProfileCard extends React.Component {
     constructor(props) {
         super(props);
 
-        // this.response = // TODO :: make request to /api/drinkers/[this.props.profile["id"]/events/
+        // this.response = // TODO :: make request to /api/drinkers/[this.props.profile["id"]]/events/
         // using dummy data for now
         this.eventData = {
             "Blacked Out": {
@@ -39,6 +40,11 @@ export default class ProfileCard extends React.Component {
             }
         };
     }
+    
+    newDrinkEvent(eventTypeID) {
+        console.log('new drink event of type: ' + eventTypeID);
+        // TODO :: make request to /api/drinkers/[this.props.profile["id"]]/[eventTypeID]/
+    }
 
     render() {
         // Definitely a better, more React-ish way to do this but it works for now
@@ -48,6 +54,8 @@ export default class ProfileCard extends React.Component {
             if (!this.eventData.hasOwnProperty(eventType)) {
                 continue;
             }
+            // TODO :: need event type ID's here to get this linked up; currently, this.props.eventTypes can't be accessed via event names (also this is raw HTML, not a string - needs to be wrapped in a <td>)
+            // let button = <EventButton newDrinkEvent={ this.newDrinkEvent.bind(this) } eventType={ ____ } />;
             let rowTitle = '<th>' + eventType + '</th>';
             let rowAllTime = '<td>' + this.eventData[eventType]["All Time"] + '</td>';
             let rowPastDay = '<td>' + this.eventData[eventType]["Past Day"] + '</td>';
