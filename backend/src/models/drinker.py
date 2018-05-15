@@ -7,7 +7,7 @@ from flask_login import UserMixin
 from orator.orm import has_many, accessor
 
 class Drinker(UserMixin, model.Model):
-    __fillable__ = ['is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos']
+    __fillable__ = ['is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'max_days_dry']
     __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos']
     __appends__  = ['profile_photo']
     # (Name for the frontend, window for querying the db)

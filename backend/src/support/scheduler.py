@@ -10,9 +10,12 @@ def update_num_days_dry():
 
     for d in Drinker.all():
         if d.is_dry():
-            dry_day_count = d.num_days_dry
-            print "Increasing {0}'s Dry Streak to {1} days.".format(d.name, d.num_days_dry + 1)
-            d.update(num_days_dry=dry_day_count + 1)
+            dry_day_count = d.num_days_dry + 1
+            print "Increasing {0}'s Dry Streak to {1} days.".format(d.name, dry_day_count)
+            d.update(num_days_dry=dry_day_count)
+
+            if dry_day_count > d.max_days_dry:
+            	d.update(max_days_dry=dry_day_count)
         else:
             print "Resetting {0}'s Dry Streak to 0.".format(d.name)
             d.update(num_days_dry=0)
