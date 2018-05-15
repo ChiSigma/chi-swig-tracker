@@ -2,14 +2,13 @@ import os
 from flask import Flask
 from flask_orator import Orator
 from flask_login import LoginManager
-from flask_dotenv import DotEnv
 from .config import DevelopmentConfig, ProductionConfig
 
 # Creating Flask application
 app = Flask(__name__)
 
 # Initializing config
-mode = os.environ.get('RUN_MODE', None)
+mode = os.environ.get('FLASK_ENV', None)
 if mode == 'development':
 	app.config.from_object(DevelopmentConfig)
 else:
