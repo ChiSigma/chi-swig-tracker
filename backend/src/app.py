@@ -1,4 +1,5 @@
 import os
+import src.support.scheduler as scheduler
 from flask import Flask
 from flask_orator import Orator
 from flask_login import LoginManager
@@ -21,6 +22,11 @@ if mode == 'development':
 
 # Login Manager
 lm = LoginManager(app)
+
+# Scheduler
+if mode != 'development':
+	print "Starting job scheduler"
+	scheduler.scheduler.start()
 
 # Initialize Authentication
 from .auth.default import auth_routes

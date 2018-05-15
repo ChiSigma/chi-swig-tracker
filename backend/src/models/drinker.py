@@ -7,7 +7,7 @@ from flask_login import UserMixin
 from orator.orm import has_many, accessor
 
 class Drinker(UserMixin, model.Model):
-    __fillable__ = ['is_public', 'bio_line']
+    __fillable__ = ['is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos']
     __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos']
     __appends__  = ['profile_photo']
     # (Name for the frontend, window for querying the db)
@@ -50,6 +50,9 @@ class Drinker(UserMixin, model.Model):
         photo_index = min(int(event_count / self.profile_pivot_increment), len(self.profile_photos) - 1)
 
         return self.profile_photos[photo_index]
+
+    def is_dry(self):
+        return self.events().created_within(time='24h').count() == 0
 
     def event_counts(self):
         event_sums = {e_type.name: {window[0]: 0 for window in self.COUNT_WINDOWS} for e_type in event_type.EventType.all()}
