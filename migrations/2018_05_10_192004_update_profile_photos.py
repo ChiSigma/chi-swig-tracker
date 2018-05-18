@@ -22,4 +22,4 @@ class UpdateProfilePhotos(Migration):
             table.drop_column('profile_photos')
             table.drop_column('profile_pivot_increment')
             table.drop_column('profile_pivot_type')
-            table.string('profile_photo')
+            table.string('profile_photo').default('')

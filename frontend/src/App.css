@@ -15,6 +15,15 @@
     margin-top: 5px;
 }
 
+.event-button {
+    color: green;
+    cursor: pointer;
+}
+
+.event-button:hover {
+    color: black !important;
+}
+
 .flip-container {
     perspective: 1000;
 }
@@ -22,6 +31,10 @@
 .flip-container:hover .flipper,
 .flip-container.hover .flipper {
     transform: rotateY(180deg);
+}
+
+.flip-container.disable-hover .flipper {
+    transform: rotateY(0deg) !important;
 }
 
 .flip-container,
@@ -69,6 +82,18 @@
 
 .bg-red {
     background-color: #e53230;
+}
+
+.bg-green {
+    background-color: green;
+}
+
+.font-red {
+    color: #e53230;
+}
+
+.font-green {
+    color: green;
 }
 
 .bg-gray-transparent {

@@ -2,6 +2,7 @@
  * Created by alexmelagrano on 5/9/18.
  */
 import React from 'react';
+import AppContext from '../app-context';
 
 import crestIcon from '../../assets/crestIcon.png';
 import RightNav from './RightNav';
@@ -16,7 +17,11 @@ export default class Navigation extends React.Component {
                     <a className="navbar-brand ml-2 mr-auto mb-0 h1" href="#">Chi Swig</a>
 
                     <div>
-                        <RightNav />
+                        <AppContext.Consumer>
+                            {(context) => (
+                                <RightNav context={ context } />
+                            )}
+                        </ AppContext.Consumer>
                     </div>
                 </div>
             </nav>

@@ -4,15 +4,12 @@
 import React from 'react';
 
 export default class SortWidget extends React.Component {
-    constructor() {
-        super();
-        this.sortOrder = 'time';
-    }
-
     changeSort(e) {
-        this.sortOrder = e.target.value;
-        console.log('changing sort order to ' + e.target.value);
-        // TODO :: make request to sort endpoint
+        const targetValue = e.target.value.split(',');
+        const sortEventType = targetValue[0];
+        const sortTime = targetValue[1];
+
+        this.props.context.updateSort(sortEventType, sortTime);
     }
 
     render() {
@@ -20,9 +17,9 @@ export default class SortWidget extends React.Component {
             <div className="d-flex align-items-center">
                 <p className="mr-2 mb-0">Sort By:</p>
                 <select onChange={this.changeSort.bind(this)} >
-                    <option>Event Type</option>
-                    <option>Time</option>
-                    <option>Order</option>
+                    <option value={ [1, '*'] }>Total Drinks All Time</option>
+                    <option value={ [1, '7d'] }>Total Drinks This Week</option>
+                    <option value={ [1, '24h'] }>Total Drinks Today</option>
                 </select>
             </div>
         )

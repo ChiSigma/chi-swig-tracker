@@ -1,12 +1,12 @@
 import os
 import src.support.scheduler as scheduler
-from flask import Flask
+from flask import Flask, render_template
 from flask_orator import Orator
 from flask_login import LoginManager
 from .config import DevelopmentConfig, ProductionConfig
 
 # Creating Flask application
-app = Flask(__name__)
+app = Flask(__name__, static_folder=os.path.join(os.getcwd(),'frontend','build', 'static'), template_folder=os.path.join(os.getcwd(),'frontend','build'))
 
 # Initializing config
 mode = os.environ.get('FLASK_ENV', None)
@@ -35,7 +35,7 @@ app.register_blueprint(auth_routes, url_prefix='/auth')
 # Initialize Routes
 @app.route('/')
 def index():
-    return 'welcome to chi swig'
+	return render_template('index.html')
 
 from .controllers.drinkers_controller import drinkers
 from .controllers.event_types_controller import event_types

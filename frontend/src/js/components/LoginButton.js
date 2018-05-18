@@ -3,26 +3,21 @@
  */
 import React from 'react';
 
-export default class RightNav extends React.Component {
+export default class LoginButton extends React.Component {
     constructor(props) {
         super(props);
-        this.isLoggedIn = props.isLoggedIn;
     }
+    
     handleAuthClick() {
-        this.isLoggedIn ? (
-            // TODO :: link to logout endpoint
-            console.log('logout user')
-        ) : (
-            // TODO :: link to login endpoint
-            console.log('login user')
-        );
+        this.props.isLoggedIn ? window.location = '/auth/logout' : window.location = '/auth/login';
     }
 
     render() {
-        const buttonText = this.isLoggedIn ? ('Log Out') : ('Log In');
+        const buttonText = this.props.isLoggedIn ? ('Log Out') : ('Log In');
+        const buttonType = this.props.isLoggedIn ? 'btn-danger' : 'btn-secondary'
         return(
             <div>
-                <button className="btn btn-secondary" type="button" onClick={this.handleAuthClick.bind(this)} >{ buttonText }</button>
+                <button className={ "btn " + buttonType } type="button" onClick={this.handleAuthClick.bind(this)} >{ buttonText }</button>
             </div>
         )
     }

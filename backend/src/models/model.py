@@ -10,7 +10,12 @@ class Model(db.Model):
         if '*' in time_ago or time_ago is None:
             return query
 
-        time_ago_int = int(''.join([d for d in time_ago if d.isdigit()]))
+        time_ago_parsed = ''.join([d for d in time_ago if d.isdigit()])
+
+        if time_ago_parsed == '':
+            raise "Unknown time format: {0} passed to parse_time!".format(time_ago)
+
+        time_ago_int = int(time_ago_parsed)
         now = datetime.datetime.utcnow()
 
         if 'd' in time_ago:

@@ -13,10 +13,8 @@ export default class MiniProfileCard extends React.Component {
     render() {
         // TODO :: const profilePhoto = this.props.activeProfile["profile_photo"];
         const profilePhoto = 'https://media.licdn.com/dms/image/C4E03AQHzXHptRd-cHg/profile-displayphoto-shrink_200_200/0?e=1531353600&v=beta&t=A5jkjzccz4PBvdNXggFFPwavsEorI6rXot2eRLn-iaY';
-        // TODO :: const bio = this.props.activeProfile["bio_line"];
-        const bio = 'I smell like lemonssss.';
-        // TODO :: const name = this.props.activeProfile["name"];
-        const name = 'Melons';
+        const bio = this.props.activeProfile["bio_line"];
+        const name = this.props.activeProfile["name"];
         
         return (
             <div className="mini-profile-card shadow-med px-2 py-1" onClick={ this.handleClick.bind(this) } >

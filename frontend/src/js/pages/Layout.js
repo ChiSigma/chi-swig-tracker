@@ -6,20 +6,23 @@ import React from 'react';
 import CardContainer from '../components/CardContainer';
 import Navigation from '../components/Navigation';
 import Subheader from '../components/Subheader';
+import AppContext from '../app-context';
 
 export default class Layout extends React.Component {
     constructor() {
         super();
-
-        this.eventTypes = [0, 1, 2]; // TODO :: make request to /api/event_types/
     }
     
     render() {
         return(
             <div>
                 <Navigation />
-                <Subheader />
-                <CardContainer eventTypes={ this.eventTypes } />
+                <AppContext.Consumer>
+                    {(context) => ([
+                        <Subheader context={ context }/>,
+                        <CardContainer context={ context }/>
+                    ])}
+                </ AppContext.Consumer>
                 <p>[footer]</p>
             </div>
         )

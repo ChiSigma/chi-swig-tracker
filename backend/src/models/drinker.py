@@ -10,8 +10,6 @@ class Drinker(UserMixin, model.Model):
     __fillable__ = ['is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'max_days_dry']
     __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos']
     __appends__  = ['profile_photo']
-    # (Name for the frontend, window for querying the db)
-    COUNT_WINDOWS = [('Past Day', '24h'), ('Past Week', '7d'), ('All Time', '*')]
 
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None):
@@ -55,8 +53,8 @@ class Drinker(UserMixin, model.Model):
         return self.events().created_within(time='24h').count() == 0
 
     def event_counts(self):
-        event_sums = {e_type.name: {window[0]: 0 for window in self.COUNT_WINDOWS} for e_type in event_type.EventType.all()}
-        for window in self.COUNT_WINDOWS:
+        event_sums = {e_type.name: {window[0]: 0 for window in event_type.EventType.COUNT_WINDOWS} for e_type in event_type.EventType.all()}
+        for window in event_type.EventType.COUNT_WINDOWS:
             window_name = window[0]
             time = window[1]
             events_in_window = self.events() \
