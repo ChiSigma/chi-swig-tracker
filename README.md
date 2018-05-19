@@ -4,6 +4,7 @@ An application to track various "swigging" related events amongst our members
                                         Idea                                          |     Difficulty (1-5)
 |                                    -----------                                      |          :----:
 | Dynamic profile pictures that update based on events                                | :white_check_mark:
+| Disable +1/-1 buttons if not logged in                                              | 2
 | Loading animations                                                                  | 2
 | Success/Failure notifications                                                       | 2
 | Finish Total Days component                                                         | 1
