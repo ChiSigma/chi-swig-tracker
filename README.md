@@ -6,7 +6,7 @@ An application to track various "swigging" related events amongst our members
 | Dynamic profile pictures that update based on events                                | :white_check_mark:
 | Disable +1/-1 buttons if not logged in                                              | :white_check_mark:
 | Add live-ish data to staging                                                        | :white_check_mark:
-| Add a footer                                                                        | 1
+| Add a footer                                                                        | :white_check_mark:
 | Loading animations                                                                  | 2
 | Success/Failure notifications                                                       | 2
 | Finish Total Days component                                                         | 1
