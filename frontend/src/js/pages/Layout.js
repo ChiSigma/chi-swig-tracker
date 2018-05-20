@@ -6,6 +6,7 @@ import React from 'react';
 import CardContainer from '../components/CardContainer';
 import Navigation from '../components/Navigation';
 import Subheader from '../components/Subheader';
+import Footer from '../components/Footer';
 import AppContext from '../app-context';
 
 export default class Layout extends React.Component {
@@ -23,7 +24,7 @@ export default class Layout extends React.Component {
                         <CardContainer context={ context }/>
                     ])}
                 </ AppContext.Consumer>
-                <p>[footer]</p>
+                <Footer />
             </div>
         )
     }
