@@ -3,11 +3,7 @@
  */
 import React from 'react';
 
-export default class PrivacyButton extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    
+export default class PrivacyButton extends React.Component {    
     async handleClick() {
         const newSetting = !this.props.isPublic;
         console.log(newSetting)

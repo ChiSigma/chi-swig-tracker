@@ -4,10 +4,6 @@
 import React from 'react';
 
 export default class LoginButton extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    
     handleAuthClick() {
         this.props.isLoggedIn ? window.location = '/auth/logout' : window.location = '/auth/login';
     }
