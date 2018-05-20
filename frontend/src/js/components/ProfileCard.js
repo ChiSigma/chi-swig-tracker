@@ -5,6 +5,7 @@ import React from 'react';
 
 import crestIcon from '../../assets/crestIcon.png';
 import EventsTable from './EventsTable';
+import AppContext from '../app-context';
 
 export default class ProfileCard extends React.Component {
     constructor(props) {
@@ -48,8 +49,7 @@ export default class ProfileCard extends React.Component {
             tableClasses += 'mask-values';
         }
 
-        // TODO :: const profilePhoto = this.props.profile["profile_photo"];
-        const profilePhoto = 'https://media.licdn.com/dms/image/C4E03AQHzXHptRd-cHg/profile-displayphoto-shrink_200_200/0?e=1531353600&v=beta&t=A5jkjzccz4PBvdNXggFFPwavsEorI6rXot2eRLn-iaY';
+        const profilePhoto = this.props.profile["profile_photo"];
         const bio = this.props.profile["bio_line"];
         const name = this.props.profile["name"];
         const maxDaysDry = this.props.profile["max_days_dry"];
@@ -81,7 +81,11 @@ export default class ProfileCard extends React.Component {
                         <h4 className="text-red mb-0">Dry Streak: { numDaysDry }</h4>
                     </div>
                     <div className="bg-white border border-dark rounded m-1 p-2">
-                        <EventsTable classes={ tableClasses } isUpvoteMode={ this.isUpvoteMode.bind(this) } newDrinkEvent={ this.newDrinkEvent.bind(this) } eventTypes={ this.props.eventTypes } eventTimes={ this.props.eventTimes } events={ this.state.eventData }/>
+                        <AppContext.Consumer>
+                            {(context) => (
+                                <EventsTable classes={ tableClasses } context={ context } isUpvoteMode={ this.isUpvoteMode.bind(this) } newDrinkEvent={ this.newDrinkEvent.bind(this) } eventTypes={ this.props.eventTypes } eventTimes={ this.props.eventTimes } events={ this.state.eventData }/>
+                            )}
+                         </ AppContext.Consumer>
                     </div>
                     <div className="p-2">
                         <span className="font-weight-bold">Highlight Reel</span>
