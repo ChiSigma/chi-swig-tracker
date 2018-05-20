@@ -4,11 +4,12 @@ An application to track various "swigging" related events amongst our members
                                         Idea                                          |     Difficulty (1-5)
 |                                    -----------                                      |          :----:
 | Dynamic profile pictures that update based on events                                | :white_check_mark:
-| Disable +1/-1 buttons if not logged in                                              | 2
+| Disable +1/-1 buttons if not logged in                                              | :white_check_mark:
+| Add live-ish data to staging                                                        | :white_check_mark:
+| Add a footer                                                                        | 1
 | Loading animations                                                                  | 2
 | Success/Failure notifications                                                       | 2
 | Finish Total Days component                                                         | 1
-| Add live-ish data to staging                                                        | 1
 | Convert to Material UI Components                                                   | 2
 | Make Public/Private loading better                                                  | 2
 | Deploy this live                                                                    | 2
