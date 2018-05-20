@@ -23,7 +23,11 @@ def sort_drinkers():
     event_type = request.args.get('event_type_id', 1)
     order = request.args.get('order', 'DESC')
     time = request.args.get('time', '*')
-    return jsonify(Drinker.sort_by_event(event_type=event_type, time=time, order=order).pluck('id'))
+    all_drinker_ids = Drinker.all().pluck('id')
+    sorted_drinker_ids = list(Drinker.sort_by_event(event_type=event_type, time=time, order=order).pluck('id'))
+
+    # Sort will not return an id if it has 0 events - have to append missing on the end
+    return jsonify(sorted_drinker_ids + [drinker_id for drinker_id in all_drinker_ids if drinker_id not in sorted_drinker_ids])
 
 
 @drinkers.route('/<int:drinker_id>/is_public', methods=['PUT'])
