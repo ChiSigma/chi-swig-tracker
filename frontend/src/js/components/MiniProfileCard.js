@@ -27,7 +27,7 @@ export default class MiniProfileCard extends React.Component {
                         <h5 className="font-weight-bold mb-0">{ name }</h5>
                     </div>
                 </div>
-                <div className="row px-5 mb-2">
+                <div className="row px-5 mb-2 text-center">
                     <i className="text-black-50 small">{ bio }</i>
                 </div>
             </div>
