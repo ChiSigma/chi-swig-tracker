@@ -5,6 +5,8 @@ import EventButton from './EventButton';
 export default class EventsTable extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {isLoggedIn: false}
     }
 
     countsForEventType(eventType) {
@@ -15,8 +17,12 @@ export default class EventsTable extends React.Component {
         )
     }
 
+    async componentWillMount() {
+        const isLoggedIn = await this.props.context.isLoggedIn();
+        this.setState({isLoggedIn: isLoggedIn});
+    }
+
     render() {
-        // TODO :: use this.props.eventTypes to build the action icons
         const tableHeaders = () => {
             let tableData = '<thead><tr>'; 
             for (var eventTime in this.props.eventTime) {
@@ -24,32 +30,25 @@ export default class EventsTable extends React.Component {
             }
             return tableData + '</tr></thead>'
         }
-        
-
-        // for (var eventType in this.state.eventData) {
-        //     if (!this.state.eventData.hasOwnProperty(eventType)) {
-        //         continue;
-        //     }
-
-        //     let button = '<td>' + <EventButton newDrinkEvent={ this.newDrinkEvent.bind(this) } eventType={ this.props.eventTypes[eventType] } /> + '</td>';
-        //     let rowTitle = '<th>' + eventType + '</th>';
-        //     let rowAllTime = '<td>' + this.state.eventData[eventType]["All Time"] + '</td>';
-        //     let rowPastDay = '<td>' + this.state.eventData[eventType]["Past Day"] + '</td>';
-        //     let rowPastWeek = '<td>' + this.state.eventData[eventType]["Past Week"] + '</td>';
-        //     tableData += '<tr>' + button + rowTitle + rowAllTime + rowPastDay + rowPastWeek + '</tr>';
-        // }
 
         const eventTimes = this.props.eventTimes.map((time) =>
             <th>{time}</th>
         );
 
+        const ifLoggedIn = function(component) {
+            if (!this.state.isLoggedIn) return;
+
+            return component;
+        }.bind(this);
+
         const buttonColor = this.props.isUpvoteMode() ? "font-green" : "font-red";
+        const addOrDelete = this.props.isUpvoteMode() ? "+1" : "-1";
 
         const eventRows = Object.keys(this.props.events).map((eventType) =>
             <tr>
-                <td>
-                    <EventButton color={ buttonColor } newDrinkEvent={ this.props.newDrinkEvent.bind(this) } eventType={ this.props.eventTypes[eventType] } />
-                </td>
+                { ifLoggedIn((<td>
+                             <EventButton color={ buttonColor } newDrinkEvent={ this.props.newDrinkEvent.bind(this) } eventType={ this.props.eventTypes[eventType] } />
+                            </td>)) }
                 <th>
                     {eventType}
                 </th>
@@ -61,7 +60,7 @@ export default class EventsTable extends React.Component {
             <table className={ this.props.classes }>
                 <thead>
                     <tr>
-                        <th>+1</th>
+                        { ifLoggedIn((<th>{ addOrDelete }</th>)) }
                         <th>Event Type</th>
                         { eventTimes }
                     </tr>
