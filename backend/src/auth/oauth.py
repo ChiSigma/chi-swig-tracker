@@ -41,7 +41,7 @@ class OAuthSignIn(object):
             decoder=decode_json
         )
         me = oauth_session.get('/userinfo').json()
-        return me['drinker_id']
+        return me.get('drinker_id', None)
 
     def get_callback_url(self):
         return app.config['REDIRECT_URI']
