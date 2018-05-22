@@ -9,7 +9,7 @@ An application to track various "swigging" related events amongst our members
 | Add a footer                                                                        | :white_check_mark:
 | Loading animations                                                                  | :white_check_mark:
 | Success/Failure notifications                                                       | :white_check_mark:
-| Finish Total Days component                                                         | 1
+| Finish Total Days component                                                         | :white_check_mark:
 | Convert to Material UI Components                                                   | 2
 | Make Public/Private loading better                                                  | 2
 | Deploy this live                                                                    | 2
