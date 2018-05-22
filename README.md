@@ -10,9 +10,9 @@ An application to track various "swigging" related events amongst our members
 | Loading animations                                                                  | :white_check_mark:
 | Success/Failure notifications                                                       | :white_check_mark:
 | Finish Total Days component                                                         | :white_check_mark:
+| Deploy this live                                                                    | 2
 | Convert to Material UI Components                                                   | 2
 | Make Public/Private loading better                                                  | 2
-| Deploy this live                                                                    | 2
 | Add CI to this                                                                      | 2
 | Update the README with more deets                                                   | 1
 | Allow for other people to join in the counting                                      | 3
