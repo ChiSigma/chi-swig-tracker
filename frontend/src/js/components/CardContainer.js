@@ -5,6 +5,7 @@ import React from 'react';
 
 import MiniProfileCard from './MiniProfileCard';
 import ProfileCard from './ProfileCard';
+import ProgressBar from './ProgressBar';
 
 export default class CardContainer extends React.Component {
     constructor(props) {
@@ -18,7 +19,8 @@ export default class CardContainer extends React.Component {
             drinkers: {},
             eventTypes: {},
             eventTimes: [],
-            version: ''
+            version: '',
+            loading: false
         };
         
         this.activeProfile = {};
@@ -37,7 +39,7 @@ export default class CardContainer extends React.Component {
         const sortTime = newSortTime ? newSortTime : this.state.sortTime;
         const sortOrder = await this.fetchSort(sortEventType, sortTime);
 
-        let newState = {sortOrder: sortOrder};
+        let newState = {sortOrder: sortOrder, loading: false};
         if (newVersion) newState['version'] = newVersion;
         if (newSortEventType) newState['sortEventType'] = newSortEventType;
         if (newSortTime) newState['sortTime'] = newSortTime;
@@ -58,7 +60,8 @@ export default class CardContainer extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         const contextSortEventType = this.props.context.sortEventType;
         const contextSortTime = this.props.context.sortTime;
-        if (contextSortEventType !== this.state.sortEventType || contextSortTime !== this.state.sortTime) {
+        if ((contextSortEventType !== this.state.sortEventType || contextSortTime !== this.state.sortTime) && !this.state.loading) {
+            this.setState({loading: true});
             this.updateSort(false, contextSortEventType, contextSortTime);
         }
     }
@@ -94,6 +97,7 @@ export default class CardContainer extends React.Component {
         this.setState({ show: false, showStats: 0, flipClass: "" })
         this.fetchVersion().then(function(version) {
             if(version !== this.state.version) {
+                this.setState({loading: true});
                 this.updateSort(version);
             }
         }.bind(this))
@@ -133,6 +137,7 @@ export default class CardContainer extends React.Component {
                 <MiniProfileCard changeActiveProfile={ this.changeActiveProfile.bind(this) } activeProfile={ this.state.drinkers[profileId] } />
             </div>
         );
+
         const modal = this.state.show ? (
             <div className="d-block modal">
                 <div className="bg-gray-transparent modal-backdrop h-100 d-flex justify-content-center align-items-center" onClick={ this.handleClose }>
@@ -145,10 +150,19 @@ export default class CardContainer extends React.Component {
             console.log('hiding the modal!')
         );
 
+        const loadingOverlay = this.state.loading ? (
+                <div id="card-container-loading">
+                    <ProgressBar />
+                </div>
+            ) : (
+                console.log('finished loading!')
+            );
+
         return (
             <div className="container pt-4">
                 { modal }
                 <div className="row">
+                    { loadingOverlay }
                     <div className="d-flex align-items-baseline justify-content-center flex-wrap">
                             { miniProfiles }
                     </div>
