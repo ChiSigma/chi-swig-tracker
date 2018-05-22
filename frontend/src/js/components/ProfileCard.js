@@ -2,6 +2,7 @@
  * Created by alexmelagrano on 5/11/18.
  */
 import React from 'react';
+import { NotificationManager } from 'react-notifications';
 
 import crestIcon from '../../assets/crestIcon.png';
 import EventsTable from './EventsTable';
@@ -24,14 +25,19 @@ export default class ProfileCard extends React.Component {
     
     async newDrinkEvent(eventTypeID) {
         // TODO : Making a loading animation
-        // TODO : Show messages if it was successful or not
         console.log('new drink event of type: ' + eventTypeID);
         const resp = await fetch('api/drinkers/' + this.props.profile['id'] + '/events/' + eventTypeID, {
             method: this.state.upvote ? 'POST' : 'DELETE',
             credentials: 'same-origin'
         });
         const success = await resp.json();
-        if (success) this.componentWillMount();
+        const deleteOrSave = this.state.upvote ? 'save' : 'delete';
+        if (success) {
+            this.componentWillMount();
+            NotificationManager.success('Successfully ' + deleteOrSave + 'd an event!');
+        } else {
+            NotificationManager.error('Failed to ' + deleteOrSave + ' an event. Go find JNorth if this is bad.');
+        }
     }
 
     isUpvoteMode() {
