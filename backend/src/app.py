@@ -1,6 +1,6 @@
 import os
 import src.support.scheduler as scheduler
-from flask import Flask, render_template
+from flask import Flask, render_template, send_file
 from flask_orator import Orator
 from flask_login import LoginManager
 from .config import DevelopmentConfig, ProductionConfig
@@ -36,6 +36,10 @@ app.register_blueprint(auth_routes, url_prefix='/auth')
 @app.route('/')
 def index():
 	return render_template('index.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_file(app.template_folder + '/favicon.ico')
 
 from .controllers.drinkers_controller import drinkers
 from .controllers.event_types_controller import event_types
