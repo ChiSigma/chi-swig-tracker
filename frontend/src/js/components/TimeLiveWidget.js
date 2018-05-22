@@ -6,9 +6,13 @@ import React from 'react';
 export default class SortWidget extends React.Component {
     constructor() {
         super();
-
-        // TODO :: make this an endpoint? or do clientside?
-        this.state = {timeLive: '0'};
+        const startDate = new Date("2018-05-24T22:58:05.939Z");
+        const now = new Date();
+        const secondsSince = Math.abs(now - startDate) / 1000;
+        const daysSince = Math.floor(secondsSince / 86400);
+        this.state = {
+            timeLive: daysSince
+        }
     }
 
     render() {
