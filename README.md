@@ -7,8 +7,8 @@ An application to track various "swigging" related events amongst our members
 | Disable +1/-1 buttons if not logged in                                              | :white_check_mark:
 | Add live-ish data to staging                                                        | :white_check_mark:
 | Add a footer                                                                        | :white_check_mark:
-| Loading animations                                                                  | 2
-| Success/Failure notifications                                                       | 2
+| Loading animations                                                                  | :white_check_mark:
+| Success/Failure notifications                                                       | :white_check_mark:
 | Finish Total Days component                                                         | 1
 | Convert to Material UI Components                                                   | 2
 | Make Public/Private loading better                                                  | 2
