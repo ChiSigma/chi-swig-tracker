@@ -21,10 +21,10 @@ export default class Layout extends React.Component {
                 <AppContext.Consumer>
                     {(context) => ([
                         <Subheader context={ context }/>,
-                        <CardContainer context={ context }/>
+                        <CardContainer context={ context }/>,
+                        <Footer context={ context }/>
                     ])}
                 </ AppContext.Consumer>
-                <Footer />
             </div>
         )
     }

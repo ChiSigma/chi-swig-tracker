@@ -8,6 +8,7 @@ export default class AppProvider extends Component {
             currentUser: false,
             sortEventType: 1,
             sortTime: '*',
+            autoRefresh: false,
             isLoggedIn: async function() {
                 const user = await this.state.me()
                 return !!user.id;
@@ -22,6 +23,9 @@ export default class AppProvider extends Component {
             updateSort: function(sortEventType=1, sortTime='*') {
                 console.log({ sortEventType, sortTime })
                 this.setState({ sortEventType, sortTime });
+            }.bind(this),
+            toggleAutoRefresh: function() {
+                this.setState({autoRefresh: !this.state.autoRefresh});
             }.bind(this)
         }
     }

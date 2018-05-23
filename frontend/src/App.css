@@ -105,6 +105,10 @@
     color: white;
 }
 
+.trademark-active {
+    color: green;
+}
+
 /* Backgrounds */
 .shadow-med {
     -webkit-box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;

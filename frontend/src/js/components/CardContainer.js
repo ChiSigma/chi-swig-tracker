@@ -89,18 +89,33 @@ export default class CardContainer extends React.Component {
     async componentDidMount() {
         const eventTypesResp = await fetch('api/event_types/');
         const eventInfo = await eventTypesResp.json();
+        this.interval = setInterval(this.autoRefresh.bind(this), 30000) 
 
         this.setState({eventTypes: eventInfo['event_types'], eventTimes: eventInfo['times']})
     }
 
-    handleClose() {
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+
+    async handleRefresh() {
+        const version = await this.fetchVersion();
+
+        if(version !== this.state.version) {
+            this.setState({loading: true});
+            this.updateSort(version);
+        }
+    }
+
+    autoRefresh() {
+        if (this.props.context.autoRefresh) {
+            this.handleRefresh();
+        }
+    }
+
+    async handleClose() {
         this.setState({ show: false, showStats: 0, flipClass: "" })
-        this.fetchVersion().then(function(version) {
-            if(version !== this.state.version) {
-                this.setState({loading: true});
-                this.updateSort(version);
-            }
-        }.bind(this))
+        await this.handleRefresh();
     }
 
     handleShow() {
