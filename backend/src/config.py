@@ -38,6 +38,6 @@ class DevelopmentConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
 	HOST = '0.0.0.0'
     # Probably set these in your .env
-	# PORT = '80'
-    # REDIRECT_URI = 'http://example.com/auth/callback'
-    # HOME_URI = 'http://example.com/'
+	PORT = environ.get('PORT', None)
+    REDIRECT_URI = environ.get('REDIRECT_URI', None)
+    HOME_URI = environ.get('HOME_URI', None)
