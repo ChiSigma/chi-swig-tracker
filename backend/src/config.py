@@ -37,4 +37,7 @@ class DevelopmentConfig(BaseConfig):
 
 class ProductionConfig(BaseConfig):
 	HOST = '0.0.0.0'
-	PORT = '80'
+    # Probably set these in your .env
+	# PORT = '80'
+    # REDIRECT_URI = 'http://example.com/auth/callback'
+    # HOME_URI = 'http://example.com/'
