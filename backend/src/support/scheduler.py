@@ -4,7 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 scheduler = BackgroundScheduler(timezone=utc)
 
-@scheduler.scheduled_job('cron', hour=0)
+@scheduler.scheduled_job('cron', hour=4)
 def update_num_days_dry():
     from src.models.drinker import Drinker
 
