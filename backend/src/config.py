@@ -36,8 +36,9 @@ class DevelopmentConfig(BaseConfig):
 
 
 class ProductionConfig(BaseConfig):
-	HOST = '0.0.0.0'
+    HOST = '0.0.0.0'
     # Probably set these in your .env
-	PORT = environ.get('PORT', None)
+    PORT = environ.get('PORT', None)
     REDIRECT_URI = environ.get('REDIRECT_URI', None)
     HOME_URI = environ.get('HOME_URI', None)
+
