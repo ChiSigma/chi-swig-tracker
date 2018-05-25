@@ -6,7 +6,7 @@ import React from 'react';
 export default class SortWidget extends React.Component {
     constructor() {
         super();
-        const startDate = new Date("2018-05-24T22:58:05.939Z");
+        const startDate = new Date("2018-05-23T17:58:05.939Z");
         const now = new Date();
         const secondsSince = Math.abs(now - startDate) / 1000;
         const daysSince = Math.floor(secondsSince / 86400);
