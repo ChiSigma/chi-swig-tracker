@@ -50,7 +50,7 @@ class Drinker(UserMixin, model.Model):
         return self.profile_photos[photo_index]
 
     def is_dry(self):
-        return self.events().where('name', '=', 'Drank').created_within(time='24h').count() == 0
+        return self.events().where('event_type_id', '=', 1).created_within(time='24h').count() == 0
 
     def event_counts(self):
         event_sums = {e_type.name: {window[0]: 0 for window in event_type.EventType.COUNT_WINDOWS} for e_type in event_type.EventType.all()}
