@@ -1,31 +1,37 @@
 import model
 import event
+import group
 import event_type
-import hashlib
 from src.app import lm
 from flask_login import UserMixin
-from orator.orm import has_many, accessor
+from orator.orm import has_many, accessor, belongs_to, belongs_to_many
 
 class Drinker(UserMixin, model.Model):
     __fillable__ = ['is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'max_days_dry']
-    __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos']
-    __appends__  = ['profile_photo']
+    __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'email', 'ephemeral_groups']
+    __touches__  = ['primary_group']
+    __appends__  = ['profile_photo', 'ephemeral_group_ids']
 
     @staticmethod
-    def sort_by_event(event_type=None, time=None, order=None):
+    def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
+        # Default this to all in scope with current auth user
+        in_scope_drinker_ids = Drinker.all().pluck('id') if in_scope is None else in_scope
         sorted_drinker_ids = event.Event \
                                     .raw(raw_statement='count(*) as count, drinker_id') \
                                     .where('event_type_id', '=', event_type) \
+                                    .where_in('drinker_id', in_scope_drinker_ids) \
                                     .created_within(time=time) \
                                     .group_by('drinker_id') \
-                                    .order_by('count', order)
+                                    .order_by('count', order) \
+                                    .get().map(lambda e: e.drinker_id)
+        if order == 'DESC':
+            append_table = in_scope_drinker_ids
+            base_table = sorted_drinker_ids
+        else:
+            append_table = sorted_drinker_ids
+            base_table = in_scope_drinker_ids
 
-        return sorted_drinker_ids.with_('drinker').get().map(lambda e: e.drinker)
-
-    @staticmethod
-    def version():
-        updated_times = Drinker.order_by('id').get().pluck('updated_at')
-        return hashlib.md5(str([ut for ut in updated_times])).hexdigest()
+        return list(base_table) + [group_id for group_id in append_table if group_id not in base_table]
 
     @lm.user_loader
     def load_user(id):
@@ -34,6 +40,18 @@ class Drinker(UserMixin, model.Model):
     @has_many
     def events(self):
         return event.Event
+
+    @belongs_to('primary_group_id')
+    def primary_group(self):
+        return group.Group
+
+    @belongs_to_many('drinkers_ephemeral_groups')
+    def ephemeral_groups(self):
+        return group.Group
+
+    @accessor
+    def ephemeral_group_ids(self):
+        return list(self.ephemeral_groups.pluck('id'))
 
     @accessor
     def profile_photos(self):
@@ -46,8 +64,11 @@ class Drinker(UserMixin, model.Model):
                                     .created_within(time='24h') \
                                     .count()
         photo_index = min(int(event_count / self.profile_pivot_increment), len(self.profile_photos) - 1)
+        photo_url = self.profile_photos[photo_index]
 
-        return self.profile_photos[photo_index]
+        if photo_url == 'default.png':
+            photo_url = "https://api.adorable.io/avatars/200/{0}.png".format(self.id)
+        return photo_url
 
     def is_dry(self):
         return self.events().where('event_type_id', '=', 1).created_within(time='24h').count() == 0

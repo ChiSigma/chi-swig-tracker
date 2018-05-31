@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 from src.app import db
 from orator.orm import scope
 
@@ -32,6 +33,11 @@ class Model(db.Model):
     @scope
     def last(self, query):
         return query.order_by('created_at', 'desc').limit(1).first()
+
+    @scope
+    def version(self, query):
+        updated_times = query.order_by('id').get().pluck('updated_at')
+        return hashlib.md5(str([ut for ut in updated_times])).hexdigest()
 
     @scope
     def raw(self, query, raw_statement=None):

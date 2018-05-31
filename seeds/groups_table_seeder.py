@@ -13,6 +13,7 @@ class GroupsTableSeeder(Seeder):
         self.db.table('groups').insert({
             'name': 'Chi Sigma',
             'profile_photo': "https://chisigma.co/img/crest.png",
-            'created_at': datetime(2018, 5, 23, 17, 58, 5, 939)
+            'created_at': datetime(2018, 5, 23, 17, 58, 5, 939),
+            'bio_line': 'the swigging champions!!'
         })
 
