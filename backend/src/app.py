@@ -12,7 +12,7 @@ app = Flask(__name__, static_folder=os.path.join(os.getcwd(),'frontend','build',
 # Initializing config
 mode = os.environ.get('FLASK_ENV', None)
 if mode == 'development':
-	app.config.from_object(DevelopmentConfig)
+    app.config.from_object(DevelopmentConfig)
 
     # Setting so ORATOR SQL queries get logged
     default_db = app.config['ORATOR_DATABASES']['default']
