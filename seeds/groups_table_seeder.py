@@ -8,7 +8,8 @@ class GroupsTableSeeder(Seeder):
         Run the database seeds.
         """
         self.db.table('groups').insert({
-            'name': 'Undeclared'
+            'name': 'Undeclared',
+            'bio_line': 'drinkers without a home'
         })
         self.db.table('groups').insert({
             'name': 'Chi Sigma',

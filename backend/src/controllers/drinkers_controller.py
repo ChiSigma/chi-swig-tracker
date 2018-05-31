@@ -10,6 +10,7 @@ drinkers = Blueprint('drinkers', __name__)
 
 @drinkers.route('/', methods=['GET'])
 def get_drinkers():
+    # Need to filter based on in-scope!!
     return jsonify({'drinkers': Drinker.all().serialize(), 'version': Drinker.version()})
 
 
@@ -20,6 +21,7 @@ def get_version():
 
 @drinkers.route('/sort', methods=['GET'])
 def sort_drinkers():
+    # Need to have model level protection
     event_type = request.args.get('event_type_id', 1)
     order = request.args.get('order', 'DESC')
     time = request.args.get('time', '*')
@@ -53,6 +55,7 @@ def get_drinker_events(drinker_id):
 @drinkers.route('/<int:drinker_id>/events/<int:event_type_id>', methods=['POST'])
 @api_requires_auth
 def add_event(drinker_id, event_type_id):
+    # Need to add group member auth too
     drinker = Drinker.find_or_fail(drinker_id)
     event_type = EventType.find_or_fail(event_type_id)
     event = drinker.events().create(event_type_id=event_type_id)
@@ -63,6 +66,7 @@ def add_event(drinker_id, event_type_id):
 @drinkers.route('/<int:drinker_id>/events/<int:event_type_id>', methods=['DELETE'])
 @api_requires_auth
 def delete_event(drinker_id, event_type_id):
+    # Need to add group member auth too
     drinker = Drinker.find_or_fail(drinker_id)
     event_type = EventType.find_or_fail(event_type_id)
     one_deleted = drinker.events().where('event_type_id', '=', event_type_id).created_within('30m').last().delete()
