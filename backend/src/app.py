@@ -1,4 +1,5 @@
 import os
+import logging
 import src.support.scheduler as scheduler
 from flask import Flask, render_template, send_file
 from flask_orator import Orator
@@ -12,6 +13,20 @@ app = Flask(__name__, static_folder=os.path.join(os.getcwd(),'frontend','build',
 mode = os.environ.get('FLASK_ENV', None)
 if mode == 'development':
 	app.config.from_object(DevelopmentConfig)
+
+    # Setting so ORATOR SQL queries get logged
+    default_db = app.config['ORATOR_DATABASES']['default']
+    app.config['ORATOR_DATABASES'][default_db]['log_queries'] = True
+
+    logger = logging.getLogger('orator.connection.queries')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        'It took %(elapsed_time)sms to execute the query %(query)s'
+    )
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 else:
 	app.config.from_object(ProductionConfig)
 
