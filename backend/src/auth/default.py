@@ -63,6 +63,37 @@ def api_requires_auth(f):
     
   return decorated
 
+
+@decorators.parametrized
+def has_access(f, **params):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    scope = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
+    if kwargs[params['id_key']] not in getattr(params['model'], scope)().lists('id'):
+      return jsonify(False)
+    return f(*args, **kwargs)
+    
+  return decorated
+
+
+@decorators.parametrized
+def inject_in_scope(f, **params):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    scope_method = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
+    scope = getattr(params['model'], scope_method)()
+
+    ids = [int(d) for d in request.args.get('ids').split(',') if d.isdigit()] if 'ids' in request.args else []
+    drinker_ids = [int(d) for d in request.args.get('drinker_ids').split(',') if d.isdigit()] if 'drinker_ids' in request.args else []
+    group_ids = [int(d) for d in request.args.get('group_ids').split(',') if d.isdigit()] if 'group_ids' in request.args else []
+
+    filtered_scope = getattr(params['model'], 'filter')(scope, ids=ids, drinker_ids=drinker_ids, group_ids=group_ids)
+    kwargs[params['inject']] = filtered_scope
+    return f(*args, **kwargs)
+    
+  return decorated
+
+
 @decorators.parametrized
 def api_requires_body(f, *params):
   @wraps(f)

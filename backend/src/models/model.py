@@ -36,7 +36,7 @@ class Model(db.Model):
 
     @scope
     def version(self, query):
-        updated_times = query.order_by('id').get().pluck('updated_at')
+        updated_times = query.order_by('id').get().lists('updated_at')
         return hashlib.md5(str([ut for ut in updated_times])).hexdigest()
 
     @scope

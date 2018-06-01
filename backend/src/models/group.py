@@ -3,14 +3,14 @@ import event
 import event_type
 import ephemeral_membership
 import model
+import src.auth.group_auth_mixin as group_auth
 from orator.orm import has_many, has_many_through, accessor
 
 
-class Group(model.Model):
+class Group(model.Model, group_auth.GroupAuthMixin):
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
-        # Default this to all in scope with current auth user
-        in_scope_group_ids = Group.all().pluck('id') if in_scope is None else in_scope
+        in_scope_group_ids = Group.in_scope().lists('id') if in_scope is None else in_scope
         sorted_group_ids = event.Event \
                                     .join('drinkers', 'events.drinker_id', '=', 'drinkers.id') \
                                     .join('groups', 'drinkers.primary_group_id', '=', 'groups.id') \
@@ -29,6 +29,15 @@ class Group(model.Model):
             base_table = in_scope_group_ids
 
         return list(base_table) + [group_id for group_id in append_table if group_id not in base_table]
+
+    @staticmethod
+    def filter(scope, **kwargs):
+        if kwargs.get('ids', []) or kwargs('group_ids', []):
+            group_ids = set().union(kwargs.get('ids', []), kwargs.get('group_ids', []))
+            in_scope_ids = set(scope.lists('id'))
+            filtered_ids = list(in_scope_ids.intersection(group_ids))
+            scope = Group.where_in('groups.id', filtered_ids)
+        return scope
 
     @has_many('primary_group_id')
     def primary_drinkers(self):

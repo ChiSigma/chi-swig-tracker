@@ -30,7 +30,7 @@ export default class CardContainer extends React.Component {
     }
 
     async fetchSort(sortEventType=this.state.sortEventType, sortTime=this.state.sortTime) {
-        const sortRes = await fetch('api/drinkers/sort?time=' + sortTime + '&event_type_id=' + sortEventType);
+        const sortRes = await fetch('api/drinkers/sort?time=' + sortTime + '&event_type_id=' + sortEventType, {credentials: "same-origin"});
         return await sortRes.json();
     }
 
@@ -48,12 +48,12 @@ export default class CardContainer extends React.Component {
     }
 
     async fetchDrinkers() {
-        const drinkersRes = await fetch('api/drinkers/');
+        const drinkersRes = await fetch('api/drinkers/', {credentials: "same-origin"});
         return await drinkersRes.json();
     }
 
     async fetchVersion() {
-        const versionRes = await fetch('api/drinkers/version');
+        const versionRes = await fetch('api/drinkers/version', {credentials: "same-origin"});
         return versionRes.json();
     }
 
