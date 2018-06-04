@@ -32,7 +32,7 @@ class Group(model.Model, group_auth.GroupAuthMixin):
 
     @staticmethod
     def filter(scope, **kwargs):
-        if kwargs.get('ids', []) or kwargs('group_ids', []):
+        if kwargs.get('ids', []) or kwargs.get('group_ids', []):
             group_ids = set().union(kwargs.get('ids', []), kwargs.get('group_ids', []))
             in_scope_ids = set(scope.lists('id'))
             filtered_ids = list(in_scope_ids.intersection(group_ids))

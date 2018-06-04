@@ -80,15 +80,16 @@ def has_access(f, **params):
 def inject_in_scope(f, **params):
   @wraps(f)
   def decorated(*args, **kwargs):
-    scope_method = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
-    scope = getattr(params['model'], scope_method)()
-
     ids = [int(d) for d in request.args.get('ids').split(',') if d.isdigit()] if 'ids' in request.args else []
     drinker_ids = [int(d) for d in request.args.get('drinker_ids').split(',') if d.isdigit()] if 'drinker_ids' in request.args else []
     group_ids = [int(d) for d in request.args.get('group_ids').split(',') if d.isdigit()] if 'group_ids' in request.args else []
 
-    filtered_scope = getattr(params['model'], 'filter')(scope, ids=ids, drinker_ids=drinker_ids, group_ids=group_ids)
-    kwargs[params['inject']] = filtered_scope
+    filtered_scope = getattr(params['model'], 'filter')(params['model'], ids=ids, drinker_ids=drinker_ids, group_ids=group_ids)
+    
+    scope_method = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
+    scope = getattr(filtered_scope, scope_method)()
+
+    kwargs[params['inject']] = scope
     return f(*args, **kwargs)
     
   return decorated
