@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, g
 from flask_orator import jsonify
 from src.auth.default import protect_events, api_requires_auth, api_requires_body, api_requires_types, has_access, inject_in_scope
 from src.models.drinker import Drinker
@@ -11,13 +11,13 @@ drinkers = Blueprint('drinkers', __name__)
 @drinkers.route('/', methods=['GET'])
 @inject_in_scope(model=Drinker, inject='drinkers')
 def get_drinkers(drinkers):
-    return jsonify({'drinkers': drinkers.get().serialize(), 'version': drinkers.version()})
+    return jsonify({'drinkers': drinkers.get().serialize(), 'version': drinkers.version(), 'is_limited': g.get('is_limited', False)})
 
 
 @drinkers.route('/version', methods=['GET'])
 @inject_in_scope(model=Drinker, inject='drinkers')
 def get_version(drinkers):
-    return jsonify(drinkers.version())
+    return jsonify({'version': drinkers.version(), 'is_limited': g.get('is_limited', False)})
 
 
 @drinkers.route('/sort', methods=['GET'])

@@ -3,7 +3,7 @@ from src.app import app
 from src.models.drinker import Drinker
 from src.auth.oauth import OAuthSignIn
 from src.support import decorators
-from flask import Blueprint, session, redirect, url_for, request, flash
+from flask import Blueprint, session, redirect, url_for, request, flash, g
 from flask_login import login_user, logout_user, current_user 
 from flask_orator import jsonify
 from functools import wraps
@@ -87,9 +87,12 @@ def inject_in_scope(f, **params):
     filtered_scope = getattr(params['model'], 'filter')(params['model'], ids=ids, drinker_ids=drinker_ids, group_ids=group_ids)
     
     scope_method = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
+    unscoped_length = filtered_scope.count()
     scope = getattr(filtered_scope, scope_method)()
 
     kwargs[params['inject']] = scope
+    g.is_limited = unscoped_length > scope.count()
+
     return f(*args, **kwargs)
     
   return decorated
