@@ -6,10 +6,12 @@ scheduler = BackgroundScheduler(timezone=utc)
 
 @scheduler.scheduled_job('cron', hour=4)
 def update_num_days_dry():
+    from src.models.event import Event
     from src.models.drinker import Drinker
+    wet_drinkers = set(Event.where('event_type_id', '=', 1).created_within('24h').pluck('drinker_id'))
 
     for d in Drinker.all():
-        if d.is_dry():
+        if d.id not in wet_drinkers:
             dry_day_count = d.num_days_dry + 1
             print "Increasing {0}'s Dry Streak to {1} days.".format(d.name, dry_day_count)
             d.update(num_days_dry=dry_day_count)
