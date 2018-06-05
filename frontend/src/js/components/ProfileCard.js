@@ -9,6 +9,8 @@ import AppContext from '../app-context';
 export default class ProfileCard extends React.Component {
     constructor(props) {
         super(props);
+
+        this.appState = props.context.state;
         this.state = {
             eventData: {},
             isLimited: false,
@@ -17,7 +19,7 @@ export default class ProfileCard extends React.Component {
     }
 
     async componentWillMount() {
-        const eventsQuery = this.props.context.state.eventsQuery(this.props.profile['id'])
+        const eventsQuery = this.appState.eventsQuery(this.props.profile['id'])
         const eventsResp = await fetch('api/events/counts?' + eventsQuery, {credentials: "same-origin"});
         const events = await eventsResp.json();
         this.setState({eventData: events['counts'], isLimited: events['is_limited']})

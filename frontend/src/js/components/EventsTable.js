@@ -6,6 +6,7 @@ export default class EventsTable extends React.Component {
     constructor(props) {
         super(props);
 
+        this.auth = props.context.auth;
         this.state = {isLoggedIn: false}
     }
 
@@ -18,7 +19,7 @@ export default class EventsTable extends React.Component {
     }
 
     async componentWillMount() {
-        const isLoggedIn = await this.props.context.auth.isLoggedIn();
+        const isLoggedIn = await this.auth.isLoggedIn();
         this.setState({isLoggedIn: isLoggedIn});
     }
 

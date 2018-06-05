@@ -11,6 +11,9 @@ export default class CardContainer extends React.Component {
     constructor(props) {
         super(props);
 
+        this.appState = props.context.state;
+        this.cache = props.context.cache;
+
         this.state = {
             show: false,
             sortEventType: props.context.state.sortEventType,
@@ -30,8 +33,8 @@ export default class CardContainer extends React.Component {
     }
 
     async fetchSort(sortEventType=this.state.sortEventType, sortTime=this.state.sortTime) {
-        const filterQuery = this.props.context.state.filterQuery();
-        const profileType = this.props.context.state.profileType;
+        const filterQuery = this.appState.filterQuery();
+        const profileType = this.appState.profileType;
         const sortRes = await fetch('api/' + profileType + '/sort?time=' + sortTime + '&event_type_id=' + sortEventType + '&' + filterQuery, {credentials: "same-origin"});
         return await sortRes.json();
     }
@@ -40,7 +43,7 @@ export default class CardContainer extends React.Component {
         const sortEventType = newSortEventType ? newSortEventType : this.state.sortEventType;
         const sortTime = newSortTime ? newSortTime : this.state.sortTime;
         const sortOrder = await this.fetchSort(sortEventType, sortTime);
-        const profiles = await this.props.context.cache.fetchAll(sortOrder)
+        const profiles = await this.cache.fetchAll(sortOrder)
 
         let newState = {profiles: profiles, sortOrder: sortOrder, loading: false};
         if (newVersion) newState['version'] = newVersion;
@@ -51,15 +54,15 @@ export default class CardContainer extends React.Component {
     }
 
     async fetchVersion() {
-        const filterQuery = this.props.context.state.filterQuery();
-        const profileType = this.props.context.state.profileType;
+        const filterQuery = this.appState.filterQuery();
+        const profileType = this.appState.profileType;
         const versionRes = await fetch('api/' + profileType + '/version?' + filterQuery, {credentials: "same-origin"});
         return versionRes.json();
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const contextSortEventType = this.props.context.state.sortEventType;
-        const contextSortTime = this.props.context.state.sortTime;
+        const contextSortEventType = this.appState.sortEventType;
+        const contextSortTime = this.appState.sortTime;
         if ((contextSortEventType !== this.state.sortEventType || contextSortTime !== this.state.sortTime) && !this.state.loading) {
             this.setState({loading: true});
             this.updateSort(false, contextSortEventType, contextSortTime);
@@ -69,7 +72,7 @@ export default class CardContainer extends React.Component {
     async componentWillMount() {
         const sort = await this.fetchSort();
         const version = await this.fetchVersion();
-        const profiles = await this.props.context.cache.fetchAll(sort);
+        const profiles = await this.cache.fetchAll(sort);
 
         this.setState({
                 version: version['version'],
@@ -102,7 +105,7 @@ export default class CardContainer extends React.Component {
     }
 
     autoRefresh() {
-        if (this.props.context.autoRefresh) {
+        if (this.appState.autoRefresh) {
             this.handleRefresh();
         }
     }
