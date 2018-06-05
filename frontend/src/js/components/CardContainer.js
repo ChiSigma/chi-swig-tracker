@@ -13,13 +13,13 @@ export default class CardContainer extends React.Component {
 
         this.state = {
             show: false,
-            sortEventType: props.context.sortEventType,
-            sortTime: props.context.sortTime,
+            sortEventType: props.context.state.sortEventType,
+            sortTime: props.context.state.sortTime,
             sortOrder: [],
-            drinkers: {},
             eventTypes: {},
             eventTimes: [],
             version: '',
+            profiles: {},
             loading: false
         };
         
@@ -30,7 +30,8 @@ export default class CardContainer extends React.Component {
     }
 
     async fetchSort(sortEventType=this.state.sortEventType, sortTime=this.state.sortTime) {
-        const sortRes = await fetch('api/drinkers/sort?time=' + sortTime + '&event_type_id=' + sortEventType, {credentials: "same-origin"});
+        const filterQuery = this.props.context.state.filterQuery();
+        const sortRes = await fetch('api/drinkers/sort?time=' + sortTime + '&event_type_id=' + sortEventType + '&' + filterQuery, {credentials: "same-origin"});
         return await sortRes.json();
     }
 
@@ -38,8 +39,9 @@ export default class CardContainer extends React.Component {
         const sortEventType = newSortEventType ? newSortEventType : this.state.sortEventType;
         const sortTime = newSortTime ? newSortTime : this.state.sortTime;
         const sortOrder = await this.fetchSort(sortEventType, sortTime);
+        const profiles = await this.props.context.cache.fetchAll(sortOrder)
 
-        let newState = {sortOrder: sortOrder, loading: false};
+        let newState = {profiles: profiles, sortOrder: sortOrder, loading: false};
         if (newVersion) newState['version'] = newVersion;
         if (newSortEventType) newState['sortEventType'] = newSortEventType;
         if (newSortTime) newState['sortTime'] = newSortTime;
@@ -47,19 +49,15 @@ export default class CardContainer extends React.Component {
         this.setState(newState);
     }
 
-    async fetchDrinkers() {
-        const drinkersRes = await fetch('api/drinkers/', {credentials: "same-origin"});
-        return await drinkersRes.json();
-    }
-
     async fetchVersion() {
-        const versionRes = await fetch('api/drinkers/version', {credentials: "same-origin"});
+        const filterQuery = this.props.context.state.filterQuery();
+        const versionRes = await fetch('api/drinkers/version?' + filterQuery, {credentials: "same-origin"});
         return versionRes.json();
     }
 
     componentDidUpdate(prevProps, prevState) {
-        const contextSortEventType = this.props.context.sortEventType;
-        const contextSortTime = this.props.context.sortTime;
+        const contextSortEventType = this.props.context.state.sortEventType;
+        const contextSortTime = this.props.context.state.sortTime;
         if ((contextSortEventType !== this.state.sortEventType || contextSortTime !== this.state.sortTime) && !this.state.loading) {
             this.setState({loading: true});
             this.updateSort(false, contextSortEventType, contextSortTime);
@@ -67,20 +65,14 @@ export default class CardContainer extends React.Component {
     }
 
     async componentWillMount() {
-        const drinkersData = await this.fetchDrinkers();
-        const sort = await this.fetchSort()
-        let version = drinkersData['version'];
-        let drinkers = drinkersData['drinkers']
-        let drinkersHash = {}
-        for (var drinker of drinkers) {
-            drinkersHash[drinker['id']] = drinker
-        }
+        const sort = await this.fetchSort();
+        const version = await this.fetchVersion();
+        const profiles = await this.props.context.cache.fetchAll(sort);
 
         this.setState({
-                drinkers: drinkersHash,
-                version: version,
+                version: version['version'],
+                profiles: profiles,
                 sortOrder: sort,
-                activeProfile: drinkersHash[sort[0]],
                 showStats: 0,
                 flipClass: ""
             });
@@ -101,9 +93,9 @@ export default class CardContainer extends React.Component {
     async handleRefresh() {
         const version = await this.fetchVersion();
 
-        if(version !== this.state.version) {
+        if(version['version'] !== this.state.version) {
             this.setState({loading: true});
-            this.updateSort(version);
+            await this.updateSort(version['version']);
         }
     }
 
@@ -145,11 +137,10 @@ export default class CardContainer extends React.Component {
     }
     
     render() {
-        
 
         const miniProfiles = this.state.sortOrder.map((profileId) =>
             <div className="m-4">
-                <MiniProfileCard changeActiveProfile={ this.changeActiveProfile.bind(this) } activeProfile={ this.state.drinkers[profileId] } />
+                <MiniProfileCard changeActiveProfile={ this.changeActiveProfile.bind(this) } activeProfile={ this.state.profiles[profileId] } />
             </div>
         );
 
@@ -157,7 +148,7 @@ export default class CardContainer extends React.Component {
             <div className="d-block modal">
                 <div className="bg-gray-transparent modal-backdrop h-100 d-flex justify-content-center align-items-center" onClick={ this.handleClose }>
                     <div className={ "flip-container " + this.state.flipClass } onClick={ this.toggleStats.bind(this) }>
-                        <ProfileCard profile={ this.activeProfile } eventTypes={ this.state.eventTypes } eventTimes={ this.state.eventTimes } />
+                        <ProfileCard profile={ this.activeProfile } context={ this.props.context } eventTypes={ this.state.eventTypes } eventTimes={ this.state.eventTimes } />
                     </div>
                 </div>
             </div>

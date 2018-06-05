@@ -13,6 +13,7 @@ export default class MiniProfileCard extends React.Component {
     render() {
         // TODO :: Pull in GroupName instead of hard coding it (doesn't yet exist)
         const profilePhoto = this.props.activeProfile["profile_photo"];
+        const groupName = this.props.activeProfile["primary_group"]["name"]
         const bio = this.props.activeProfile["bio_line"];
         const name = this.props.activeProfile["name"];
         
@@ -23,7 +24,7 @@ export default class MiniProfileCard extends React.Component {
                         <img src={ profilePhoto } alt="profile_photo" className="rounded-circle" width="70px" />
                     </div>
                     <div className="mr-3">
-                        <h6 className="text-black-50 mb-1">Chi Sigma</h6>
+                        <h6 className="text-black-50 mb-1">{ groupName }</h6>
                         <h5 className="font-weight-bold mb-0">{ name }</h5>
                     </div>
                 </div>

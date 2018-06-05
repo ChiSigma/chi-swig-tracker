@@ -10,17 +10,17 @@ from orator.orm import has_many, has_many_through, accessor
 class Group(model.Model, group_auth.GroupAuthMixin):
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
-        in_scope_group_ids = Group.in_scope().lists('id') if in_scope is None else in_scope
+        in_scope_group_ids = Group.in_scope().lists('id') if in_scope is None else in_scope.lists('id')
         sorted_group_ids = event.Event \
                                     .join('drinkers', 'events.drinker_id', '=', 'drinkers.id') \
                                     .join('groups', 'drinkers.primary_group_id', '=', 'groups.id') \
-                                    .raw(raw_statement='count(*) as count, groups.id') \
+                                    .raw(raw_statement='count(*) as count, groups.id as group_id') \
                                     .where('events.event_type_id', '=', event_type) \
                                     .where_in('groups.id', in_scope_group_ids) \
                                     .created_within(time=time) \
-                                    .group_by('groups.id') \
+                                    .group_by('group_id') \
                                     .order_by('count', order) \
-                                    .get().map(lambda e: e.id)
+                                    .get().map(lambda e: e.group_id)
         if order == 'DESC':
             append_table = in_scope_group_ids
             base_table = sorted_group_ids

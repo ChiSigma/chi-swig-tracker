@@ -17,9 +17,9 @@ export default class RightNav extends React.Component {
     }
 
     async componentWillMount() {
-        const isLoggedIn = await this.props.context.isLoggedIn();
-        const isPublic = await this.props.context.isPublic();
-        const me = await this.props.context.me();
+        const isLoggedIn = await this.props.context.auth.isLoggedIn();
+        const isPublic = await this.props.context.auth.myPrivacySetting();
+        const me = await this.props.context.auth.me();
         this.setState({
             isLoggedIn: isLoggedIn,
             isPublic: isPublic,

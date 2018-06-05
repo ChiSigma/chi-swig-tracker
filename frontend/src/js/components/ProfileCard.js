@@ -3,8 +3,6 @@
  */
 import React from 'react';
 import { NotificationManager } from 'react-notifications';
-
-import crestIcon from '../../assets/crestIcon.png';
 import EventsTable from './EventsTable';
 import AppContext from '../app-context';
 
@@ -13,18 +11,21 @@ export default class ProfileCard extends React.Component {
         super(props);
         this.state = {
             eventData: {},
+            isLimited: false,
             upvote: true
         }
     }
 
     async componentWillMount() {
-        const eventsResp = await fetch('api/drinkers/' + this.props.profile['id'] + '/events', {credentials: "same-origin"});
+        const eventsQuery = this.props.context.state.eventsQuery(this.props.profile['id'])
+        const eventsResp = await fetch('api/events/counts?' + eventsQuery, {credentials: "same-origin"});
         const events = await eventsResp.json();
-        this.setState({eventData: events})
+        this.setState({eventData: events['counts'], isLimited: events['is_limited']})
     }
     
     async newDrinkEvent(eventTypeID) {
         // TODO : Making a loading animation
+        // TODO : Return if profileType isn't drinker
         console.log('new drink event of type: ' + eventTypeID);
         const resp = await fetch('api/drinkers/' + this.props.profile['id'] + '/events/' + eventTypeID, {
             method: this.state.upvote ? 'POST' : 'DELETE',
@@ -61,6 +62,7 @@ export default class ProfileCard extends React.Component {
         const maxDaysDry = this.props.profile["max_days_dry"];
         const numDaysDry = this.props.profile["num_days_dry"];
         const profileColor = this.state.upvote ? "bg-green" : "bg-red";
+        const crestIcon = this.props.profile["primary_group"]["profile_photo"]
 
         return (
             <div className="profile-card flipper">
@@ -94,8 +96,8 @@ export default class ProfileCard extends React.Component {
                          </ AppContext.Consumer>
                     </div>
                     <div className="p-2">
-                        <span className="font-weight-bold">Highlight Reel</span>
-                        <i className="text-black-50 small d-block">{ bio }</i>
+                        <span className="font-weight-bold">Details</span>
+                        <i className="text-black-50 small d-block">This profile has hidden events: { this.state.isLimited.toString() }</i>
                     </div>
                 </div>
             </div>

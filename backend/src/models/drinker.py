@@ -17,7 +17,7 @@ class Drinker(UserMixin, drinker_auth.DrinkerAuthMixin, model.Model):
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
         # Default this to all in scope with current auth user
-        in_scope_drinker_ids = Drinker.in_scope().lists('id') if in_scope is None else in_scope
+        in_scope_drinker_ids = Drinker.in_scope().lists('id') if in_scope is None else in_scope.lists('id')
         sorted_drinker_ids = event.Event \
                                     .raw(raw_statement='count(*) as count, drinker_id') \
                                     .where('event_type_id', '=', event_type) \
@@ -26,6 +26,8 @@ class Drinker(UserMixin, drinker_auth.DrinkerAuthMixin, model.Model):
                                     .group_by('drinker_id') \
                                     .order_by('count', order) \
                                     .get().map(lambda e: e.drinker_id)
+
+
         if order == 'DESC':
             append_table = in_scope_drinker_ids
             base_table = sorted_drinker_ids
