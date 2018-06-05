@@ -1,6 +1,6 @@
 from flask import Blueprint, request, g
 from flask_orator import jsonify
-from src.auth.default import protect_events, api_requires_auth, api_requires_body, api_requires_types, has_access, inject_in_scope
+from src.auth.default import protect_events, has_access, inject_in_scope
 from src.models.drinker import Drinker
 from src.models.event import Event
 from src.models.event_type import EventType
@@ -33,9 +33,6 @@ def sort_groups(groups):
 
 
 @groups.route('/<int:drinker_id>/is_public', methods=['PUT'])
-@api_requires_auth
-@api_requires_body('is_public')
-@api_requires_types(is_public=bool)
 def update_is_public(drinker_id):
     # TODO :: No longer the correct endpoint
     drinker = Drinker.find_or_fail(drinker_id)
@@ -43,12 +40,3 @@ def update_is_public(drinker_id):
     drinker.update(is_public=body['is_public'])
 
     return jsonify(drinker)
-
-
-@groups.route('/<int:group_id>/events', methods=['GET'])
-@has_access(model=Group, id_key='group_id')
-def get_group_events(group_id):
-    # TODO :: Need to protect this
-    group = Group.find_or_fail(group_id)
-
-    return jsonify(group.event_counts())

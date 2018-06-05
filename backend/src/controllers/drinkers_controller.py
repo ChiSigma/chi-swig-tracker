@@ -1,6 +1,6 @@
 from flask import Blueprint, request, g
 from flask_orator import jsonify
-from src.auth.default import protect_events, api_requires_auth, api_requires_body, api_requires_types, has_access, inject_in_scope
+from src.auth.default import protect_events, has_access, inject_in_scope
 from src.models.drinker import Drinker
 from src.models.event import Event
 from src.models.event_type import EventType
@@ -33,9 +33,6 @@ def sort_drinkers(drinkers):
 
 
 @drinkers.route('/<int:drinker_id>/is_public', methods=['PUT'])
-@api_requires_auth
-@api_requires_body('is_public')
-@api_requires_types(is_public=bool)
 def update_is_public(drinker_id):
     # TODO :: Not the correct thing anymore
     drinker = Drinker.find_or_fail(drinker_id)
@@ -43,15 +40,6 @@ def update_is_public(drinker_id):
     drinker.update(is_public=body['is_public'])
 
     return jsonify(drinker)
-
-
-@drinkers.route('/<int:drinker_id>/events', methods=['GET'])
-@has_access(model=Drinker, id_key='drinker_id')
-def get_drinker_events(drinker_id):
-    # Need protect events clause
-    drinker = Drinker.find_or_fail(drinker_id)
-
-    return jsonify(drinker.event_counts())
 
 
 @drinkers.route('/<int:drinker_id>/events/<int:event_type_id>', methods=['POST'])

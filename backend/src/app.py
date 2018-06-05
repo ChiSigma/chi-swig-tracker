@@ -59,6 +59,8 @@ def favicon():
 from .controllers.drinkers_controller import drinkers
 from .controllers.event_types_controller import event_types
 from .controllers.groups_controller import groups
+from .controllers.events_controller import events
 app.register_blueprint(drinkers, url_prefix="/api/drinkers")
 app.register_blueprint(event_types, url_prefix="/api/event_types")
 app.register_blueprint(groups, url_prefix="/api/groups")
+app.register_blueprint(events, url_prefix="/api/events")

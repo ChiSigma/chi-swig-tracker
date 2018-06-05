@@ -53,17 +53,6 @@ def get_me():
   return jsonify({})
 
 
-def api_requires_auth(f):
-  @wraps(f)
-  def decorated(*args, **kwargs):
-    if current_user.is_anonymous:
-      # Redirect to Login page here
-      return jsonify(False)
-    return f(*args, **kwargs)
-    
-  return decorated
-
-
 @decorators.parametrized
 def has_access(f, **params):
   @wraps(f)
@@ -83,8 +72,10 @@ def inject_in_scope(f, **params):
     ids = [int(d) for d in request.args.get('ids').split(',') if d.isdigit()] if 'ids' in request.args else []
     drinker_ids = [int(d) for d in request.args.get('drinker_ids').split(',') if d.isdigit()] if 'drinker_ids' in request.args else []
     group_ids = [int(d) for d in request.args.get('group_ids').split(',') if d.isdigit()] if 'group_ids' in request.args else []
+    event_type_ids = [int(d) for d in request.args['event_type_ids'].split(',') if d.isdigit()] if 'event_type_ids' in request.args else []
+    time = request.args['time'] if 'time' in request.args else None
 
-    filtered_scope = getattr(params['model'], 'filter')(params['model'], ids=ids, drinker_ids=drinker_ids, group_ids=group_ids)
+    filtered_scope = getattr(params['model'], 'filter')(params['model'], ids=ids, drinker_ids=drinker_ids, group_ids=group_ids, event_type_ids=event_type_ids, time=time)
     
     scope_method = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
     unscoped_length = filtered_scope.count()
@@ -93,33 +84,6 @@ def inject_in_scope(f, **params):
     kwargs[params['inject']] = scope
     g.is_limited = unscoped_length > scope.count()
 
-    return f(*args, **kwargs)
-    
-  return decorated
-
-
-@decorators.parametrized
-def api_requires_body(f, *params):
-  @wraps(f)
-  def decorated(*args, **kwargs):
-    body = request.get_json()
-
-    if len(list(set(params) & set(body.keys()))) != len(params):
-      return jsonify(False)
-    return f(*args, **kwargs)
-    
-  return decorated
-
-
-@decorators.parametrized
-def api_requires_types(f, **body_types):
-  @wraps(f)
-  def decorated(*args, **kwargs):
-    body = request.get_json()
-
-    for key, v_type in body_types.iteritems():
-        if type(body[key]) is not v_type:
-            return jsonify(False)
     return f(*args, **kwargs)
     
   return decorated
