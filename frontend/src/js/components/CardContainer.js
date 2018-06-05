@@ -31,7 +31,8 @@ export default class CardContainer extends React.Component {
 
     async fetchSort(sortEventType=this.state.sortEventType, sortTime=this.state.sortTime) {
         const filterQuery = this.props.context.state.filterQuery();
-        const sortRes = await fetch('api/drinkers/sort?time=' + sortTime + '&event_type_id=' + sortEventType + '&' + filterQuery, {credentials: "same-origin"});
+        const profileType = this.props.context.state.profileType;
+        const sortRes = await fetch('api/' + profileType + '/sort?time=' + sortTime + '&event_type_id=' + sortEventType + '&' + filterQuery, {credentials: "same-origin"});
         return await sortRes.json();
     }
 
@@ -51,7 +52,8 @@ export default class CardContainer extends React.Component {
 
     async fetchVersion() {
         const filterQuery = this.props.context.state.filterQuery();
-        const versionRes = await fetch('api/drinkers/version?' + filterQuery, {credentials: "same-origin"});
+        const profileType = this.props.context.state.profileType;
+        const versionRes = await fetch('api/' + profileType + '/version?' + filterQuery, {credentials: "same-origin"});
         return versionRes.json();
     }
 
