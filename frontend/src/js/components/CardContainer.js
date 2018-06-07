@@ -73,7 +73,7 @@ export default class CardContainer extends React.Component {
     }
 
     async componentDidMount() {
-        const eventInfo = await fetch('api/event_types/');
+        const eventInfo = await fetch('api/event_types');
 
         this.setState({
             showStats: 0,

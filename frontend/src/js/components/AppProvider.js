@@ -159,7 +159,7 @@ export default class AppProvider extends Component {
     }
 
     async fetchObjs(type, ids, filters=false) {
-        let query = 'api/' + type + '/?ids=' + ids.join(',')
+        let query = 'api/' + type + '?ids=' + ids.join(',')
         if (filters) query += ('&' + filters);
         const objs = await fetch(query, {credentials: 'same-origin'})
         

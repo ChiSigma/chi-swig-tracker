@@ -5,7 +5,7 @@ from src.models import Drinker, Event, EventType, Group
 
 events = Blueprint('events', __name__)
 
-@events.route('/', methods=['GET'])
+@events.route('', methods=['GET'])
 @inject_in_scope(model=Event, inject='events')
 def get_events(events):
     return jsonify({'events': events.get().serialize(), 'is_limited': g.get('is_limited', False)})
