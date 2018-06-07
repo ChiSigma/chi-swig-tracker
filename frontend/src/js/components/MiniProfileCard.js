@@ -6,7 +6,6 @@ import React from 'react';
 export default class MiniProfileCard extends React.Component {
 
     handleClick(e) {
-        console.log('handling click to change active profile to: ' + this.props.activeProfile);
         this.props.changeActiveProfile(this.props.activeProfile);
     }
 

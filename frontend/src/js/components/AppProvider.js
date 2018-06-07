@@ -161,15 +161,13 @@ export default class AppProvider extends Component {
     async fetchObjs(type, ids, filters=false) {
         let query = 'api/' + type + '/?ids=' + ids.join(',')
         if (filters) query += ('&' + filters);
-        const objResp = await fetch(query, {credentials: 'same-origin'})
-        const objs = await objResp.json()
+        const objs = await fetch(query, {credentials: 'same-origin'})
+        
         return objs[type]
     }
 
     async fetchMe() {
-        const userResp = await fetch('auth/me', {credentials: 'same-origin'})
-        const user = await userResp.json();
-        return user;
+        return await fetch('auth/me', {credentials: 'same-origin'});
     }
 
     async fetchVersion({ groups = false, drinkers = false, profileType = false } = {}) {
@@ -177,9 +175,7 @@ export default class AppProvider extends Component {
         const filterQuery = state.filterQuery({ groups, drinkers });
         profileType = profileType ? profileType : state.profileType;
 
-        const versionRes = await fetch('api/' + profileType + '/version?' + filterQuery, {credentials: "same-origin"});
-        const version = await versionRes.json()
-        return version;
+        return await fetch('api/' + profileType + '/version?' + filterQuery, {credentials: "same-origin"});
     }
 
     render() {

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, g
 from flask_orator import jsonify
+from src.support.exceptions import NoModelException
 from src.auth.default import protect_events, has_access, inject_in_scope
 from src.models.drinker import Drinker
 from src.models.event import Event
@@ -60,4 +61,5 @@ def delete_event(drinker_id, event_type_id):
     event_type = EventType.find_or_fail(event_type_id)
     one_deleted = drinker.events().where('event_type_id', '=', event_type_id).created_within('30m').last().delete()
 
+    if not one_deleted: raise NoModelException('Could not delete. 0 {0} events within a 30m window.'.format(event_type.name))
     return jsonify(one_deleted)

@@ -22,27 +22,20 @@ export default class ProfileCard extends React.Component {
 
     async componentWillMount() {
         const eventsQuery = this.appState().eventsQuery(this.props.profile['id'])
-        const eventsResp = await fetch('api/events/counts?' + eventsQuery, {credentials: "same-origin"});
-        const events = await eventsResp.json();
+        const events = await fetch('api/events/counts?' + eventsQuery, {credentials: "same-origin"});
         const editable = await this.auth().isEditable(this.props.profile);
         this.setState({eventData: events['counts'], isLimited: events['is_limited'], editable})
     }
     
     async newDrinkEvent(eventTypeID) {
-        // TODO : Making a loading animation
-        // TODO : Return if profileType isn't drinker
-        console.log('new drink event of type: ' + eventTypeID);
-        const resp = await fetch('api/drinkers/' + this.props.profile['id'] + '/events/' + eventTypeID, {
+        const response = await fetch('api/drinkers/' + this.props.profile['id'] + '/events/' + eventTypeID, {
             method: this.state.upvote ? 'POST' : 'DELETE',
             credentials: 'same-origin'
         });
-        const success = await resp.json();
         const deleteOrSave = this.state.upvote ? 'save' : 'delete';
-        if (success) {
+        if (!response.error) {
             this.componentWillMount();
             NotificationManager.success('Successfully ' + deleteOrSave + 'd an event!');
-        } else {
-            NotificationManager.error('Failed to ' + deleteOrSave + ' an event. Go find JNorth if this is bad.');
         }
     }
 

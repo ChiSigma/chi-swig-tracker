@@ -61,7 +61,7 @@ def handle_swig_core_exception(error):
         # TODO :: Add Slack notificaiton
         app.logger.error('Unhandled Exception: %s', (error))
 
-    payload.status_code = status_code
+    payload['status_code'] = status_code
     response = jsonify(payload)
     return response
 

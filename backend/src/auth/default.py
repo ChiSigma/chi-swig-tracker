@@ -4,6 +4,7 @@ from src.models.drinker import Drinker
 from src.models.primary_membership import PrimaryMembership
 from src.auth.oauth import OAuthSignIn
 from src.support import decorators
+from src.support.exceptions import ForbiddenAccessException
 from flask import Blueprint, session, redirect, url_for, request, flash, g
 from flask_login import login_user, logout_user, current_user 
 from flask_orator import jsonify
@@ -61,7 +62,7 @@ def has_access(f, **params):
   def decorated(*args, **kwargs):
     scope = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
     if kwargs[params['id_key']] not in getattr(params['model'], scope)().lists('id'):
-      return jsonify(False)
+      raise ForbiddenAccessException('You do not have access to {0}: {1}').format(params['model'].name, params['id_key'])
     return f(*args, **kwargs)
     
   return decorated

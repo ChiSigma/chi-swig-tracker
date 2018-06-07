@@ -32,8 +32,7 @@ export default class CardContainer extends React.Component {
     async fetchSort(sortEventType=this.appState().sortEventType, sortTime=this.appState().sortTime) {
         const filterQuery = this.appState().filterQuery();
         const profileType = this.appState().profileType;
-        const sortRes = await fetch('api/' + profileType + '/sort?time=' + sortTime + '&event_type_id=' + sortEventType + '&' + filterQuery, {credentials: "same-origin"});
-        return await sortRes.json();
+        return await fetch('api/' + profileType + '/sort?time=' + sortTime + '&event_type_id=' + sortEventType + '&' + filterQuery, {credentials: "same-origin"});
     }
 
     async updateSort(newSortEventType=false, newSortTime=false) {
@@ -74,8 +73,7 @@ export default class CardContainer extends React.Component {
     }
 
     async componentDidMount() {
-        const eventTypesResp = await fetch('api/event_types/');
-        const eventInfo = await eventTypesResp.json();
+        const eventInfo = await fetch('api/event_types/');
 
         this.setState({
             showStats: 0,

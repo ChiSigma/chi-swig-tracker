@@ -8,7 +8,6 @@ export default class EventButton extends React.Component {
 
     handleClick(e) {
         e.stopPropagation();
-        console.log('handling click to add a new event of type: ' + this.props.eventType);
         this.props.newDrinkEvent(this.props.eventType['id']);
     }
 
