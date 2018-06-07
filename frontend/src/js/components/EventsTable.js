@@ -3,24 +3,12 @@ import React from 'react';
 import EventButton from './EventButton';
 
 export default class EventsTable extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.auth = () => { return this.props.context.auth };
-        this.state = {isLoggedIn: false, profileType: this.props.context.state.profileType}
-    }
-
     countsForEventType(eventType) {
         return this.props.eventTimes.map((time) =>
             <td>
                 {this.props.events[eventType][time]}
             </td>
         )
-    }
-
-    async componentWillMount() {
-        const isLoggedIn = await this.auth().isLoggedIn();
-        this.setState({isLoggedIn: isLoggedIn});
     }
 
     render() {
@@ -37,7 +25,7 @@ export default class EventsTable extends React.Component {
         );
 
         const showEventButtons = function(component) {
-            if (!this.state.isLoggedIn || (this.state.profileType === 'groups')) return;
+            if (!this.props.isEditable()) return;
 
             return component;
         }.bind(this);

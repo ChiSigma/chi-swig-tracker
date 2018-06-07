@@ -10,11 +10,13 @@ export default class ProfileCard extends React.Component {
     constructor(props) {
         super(props);
 
-        this.appState = () => { return props.context.state };
+        this.appState = () => { return this.props.context.state };
+        this.auth = () => { return this.props.context.auth };
         this.state = {
             eventData: {},
             isLimited: false,
-            upvote: true
+            upvote: true,
+            editable: false
         }
     }
 
@@ -22,7 +24,8 @@ export default class ProfileCard extends React.Component {
         const eventsQuery = this.appState().eventsQuery(this.props.profile['id'])
         const eventsResp = await fetch('api/events/counts?' + eventsQuery, {credentials: "same-origin"});
         const events = await eventsResp.json();
-        this.setState({eventData: events['counts'], isLimited: events['is_limited']})
+        const editable = await this.auth().isEditable(this.props.profile);
+        this.setState({eventData: events['counts'], isLimited: events['is_limited'], editable})
     }
     
     async newDrinkEvent(eventTypeID) {
@@ -47,6 +50,10 @@ export default class ProfileCard extends React.Component {
         return this.state.upvote;
     }
 
+    isEditable() {
+        return this.state.editable;
+    }
+
     toggleVoteType(e) {
         e.stopPropagation();
         this.setState({upvote: !this.state.upvote});
@@ -64,7 +71,7 @@ export default class ProfileCard extends React.Component {
         const maxDaysDry = this.props.profile["max_days_dry"];
         const numDaysDry = this.props.profile["num_days_dry"];
         const profileColor = this.state.upvote ? "bg-green" : "bg-red";
-        const crestIcon = this.props.profile["primary_group"] ?this.props.profile["primary_group"]["profile_photo"] : profilePhoto
+        const crestIcon = this.props.profile["primary_group"] ? this.props.profile["primary_group"]["profile_photo"] : profilePhoto
 
         return (
             <div className="profile-card flipper">
@@ -94,7 +101,15 @@ export default class ProfileCard extends React.Component {
                     <div className="bg-white border border-dark rounded m-1 p-2">
                         <AppContext.Consumer>
                             {(context) => (
-                                <EventsTable classes={ tableClasses } context={ context } isUpvoteMode={ this.isUpvoteMode.bind(this) } newDrinkEvent={ this.newDrinkEvent.bind(this) } eventTypes={ this.props.eventTypes } eventTimes={ this.props.eventTimes } events={ this.state.eventData }/>
+                                <EventsTable 
+                                    classes={ tableClasses } 
+                                    profileType={ this.appState().profileType }
+                                    isEditable={ this.isEditable.bind(this) } 
+                                    isUpvoteMode={ this.isUpvoteMode.bind(this) }
+                                    newDrinkEvent={ this.newDrinkEvent.bind(this) }
+                                    eventTypes={ this.props.eventTypes }
+                                    eventTimes={ this.props.eventTimes }
+                                    events={ this.state.eventData }/>
                             )}
                          </ AppContext.Consumer>
                     </div>

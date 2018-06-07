@@ -11,12 +11,24 @@ export default class AppProvider extends Component {
                     const user = await this.state.auth.me()
                     return !!user.id;
                 }.bind(this),
+                isEditable: async function(profile) {
+                    const user = await this.state.auth.me();
+                    const userGroups = user.groups_can_edit || []
+                    const profileGroups = profile.groups_can_edit || []
+                    return profileGroups.some((e) => {
+                        return userGroups.includes(e);
+                    });
+                }.bind(this),
                 myPrivacySetting: async function () {
-                    const user = await this.state.auth.me()
+                    const user = await this.state.auth.me();
                     return user.privacy_setting;
                 }.bind(this),
                 me: async function() {
-                    return await this.state.auth.currentUser ? Promise.resolve(this.state.auth.currentUser) : this.fetchMe();
+                    const user = await this.state.auth.currentUser ? Promise.resolve(this.state.auth.currentUser) : this.fetchMe();
+                    let auth = { ...this.state.auth }
+                    auth.currentUser = user;
+                    this.setState({ auth });
+                    return user;
                 }.bind(this),
             },
             state: {
@@ -27,6 +39,7 @@ export default class AppProvider extends Component {
                 groups: [],
                 drinkers: [],
                 version: {},
+                isHydrated: false,
                 checkVersion: async function({ groups, drinkers, profileType}) {
                     const version = await this.fetchVersion({ groups, drinkers, profileType});
                     return version;
@@ -120,11 +133,15 @@ export default class AppProvider extends Component {
     }
 
     async componentWillMount() {
-        const me = this.state.auth.me();
-        const initalGroup = me.primary_group_id ? me.primary_group_id : 2;
+        const me = await this.fetchMe();
+        const initialGroup = me.primary_group ? me.primary_group.id : 2;
         let state = { ...this.state.state };
-        state.groups = [initalGroup];
-        this.setState( { state } );
+        state.groups = [initialGroup];
+        state.isHydrated = true;
+
+        let auth = { ...this.state.auth };
+        auth.currentUser = me
+        this.setState( { state, auth } );
     }
 
     sortFilters({ groups = false, drinkers = false } = {}) {
@@ -152,9 +169,6 @@ export default class AppProvider extends Component {
     async fetchMe() {
         const userResp = await fetch('auth/me', {credentials: 'same-origin'})
         const user = await userResp.json();
-        let auth = { ...this.state.auth }
-        auth.currentUser = user;
-        this.setState({ auth });
         return user;
     }
 

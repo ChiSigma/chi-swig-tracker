@@ -30,6 +30,10 @@ class Model(db.Model):
 
         return query.where('{0}created_at'.format(table_name), '>', now - delta)
 
+    @staticmethod
+    def transaction():
+        return db.transaction()
+
     @scope
     def last(self, query):
         return query.order_by('created_at', 'desc').limit(1).first()

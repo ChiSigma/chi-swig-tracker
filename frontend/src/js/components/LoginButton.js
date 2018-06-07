@@ -9,7 +9,7 @@ export default class LoginButton extends React.Component {
     }
 
     render() {
-        const buttonText = this.props.isLoggedIn ? ('Log Out') : ('Log In');
+        const buttonText = this.props.isLoggedIn ? ('Logout') : ('Login/Sign-up');
         const buttonType = this.props.isLoggedIn ? 'btn-danger' : 'btn-secondary'
         return(
             <div>

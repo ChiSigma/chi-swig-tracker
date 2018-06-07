@@ -20,7 +20,7 @@ export default class CardContainer extends React.Component {
             eventTypes: {},
             eventTimes: [],
             profiles: {},
-            loading: false
+            loading: true
         };
         
         this.activeProfile = {};
@@ -47,6 +47,9 @@ export default class CardContainer extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        if (!prevProps.context.state.isHydrated && this.appState().isHydrated) {
+            return this.hydrateCardContainer();
+        }
         const contextSortEventType = this.appState().sortEventType;
         const contextSortTime = this.appState().sortTime;
         const appStateChanged = this.appState().hasChanged(prevProps);
@@ -56,25 +59,30 @@ export default class CardContainer extends React.Component {
         }
     }
 
-    async componentWillMount() {
-        const sort = await this.fetchSort();
-        const version = await this.appState().refreshVersion();
+    async hydrateCardContainer() {
+        let sort = this.fetchSort();
+        let version = this.appState().refreshVersion();
+        sort = await sort;
+        version = await version;
         const profiles = await this.cache().fetchAll(sort);
-
         this.setState({
                 profiles: profiles,
                 sortOrder: sort,
-                showStats: 0,
-                flipClass: ""
+                loading: false
             });
+        this.interval = setInterval(this.autoRefresh.bind(this), 30000)
     }
 
     async componentDidMount() {
         const eventTypesResp = await fetch('api/event_types/');
         const eventInfo = await eventTypesResp.json();
-        this.interval = setInterval(this.autoRefresh.bind(this), 30000) 
 
-        this.setState({eventTypes: eventInfo['event_types'], eventTimes: eventInfo['times']})
+        this.setState({
+            showStats: 0,
+            flipClass: "",
+            eventTypes: eventInfo['event_types'],
+            eventTimes: eventInfo['times']
+        });
     }
 
     componentWillUnmount() {

@@ -1,6 +1,7 @@
 import requests
 from src.app import app
 from src.models.drinker import Drinker
+from src.models.primary_membership import PrimaryMembership
 from src.auth.oauth import OAuthSignIn
 from src.support import decorators
 from flask import Blueprint, session, redirect, url_for, request, flash, g
@@ -10,22 +11,23 @@ from functools import wraps
 
 auth_routes = Blueprint('auth_routes', __name__)
 
-
 @auth_routes.route('/callback')
 def callback_handling():
   if not current_user.is_anonymous:
     return redirect(url_for('index'))
 
   oauth = OAuthSignIn.get_provider()
-  drinker_id = oauth.callback()
-  if drinker_id is None:
+  email, name = oauth.callback()
+  if email is None:
       flash('Authentication failed.')
       return redirect(url_for('index'))
 
-  drinker = Drinker.find(drinker_id)
-  if not drinker:
-    flash('Unknown drinker ID came back from OAuth.')
-    return redirect(url_for('index'))
+  drinker = Drinker.where('email', '=', email).first()
+
+  if drinker is None:
+    with Drinker.transaction():
+      drinker = Drinker.create(name=name, email=email)
+      PrimaryMembership.create(drinker_id=drinker.id, group_id=1)
 
   login_user(drinker, True)
   return redirect(url_for('index'))

@@ -11,10 +11,10 @@ from flask_login import UserMixin
 from orator.orm import has_many, has_one, accessor
 
 class Drinker(UserMixin, drinker_auth.DrinkerAuthMixin, model.Model):
-    __fillable__ = ['is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'max_days_dry']
+    __fillable__ = ['name', 'email', 'is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'max_days_dry']
     __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'email', 'primary_membership']
     __touches__  = ['primary_group']
-    __appends__  = ['profile_photo', 'primary_group']
+    __appends__  = ['profile_photo', 'primary_group', 'groups_can_edit']
 
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
@@ -64,21 +64,25 @@ class Drinker(UserMixin, drinker_auth.DrinkerAuthMixin, model.Model):
     def events(self):
         return event.Event
 
-    @has_one('drinker_id')
+    @has_one
     def primary_membership(self):
         return primary_membership.PrimaryMembership
 
-    @has_many('drinker_id')
+    @has_many
     def ephemeral_memberships(self):
-        return ephemeral_membership.EphemeralMembership.with_('group')
+        return ephemeral_membership.EphemeralMembership
 
     @accessor
     def ephemeral_groups(self):
-        return self.ephemeral_memberships.get().pluck('group')
+        return self.ephemeral_memberships.pluck('group')
 
     @accessor
     def primary_group(self):
-        return self.primary_membership.group
+        return self.primary_membership.group if self.primary_membership else {}
+
+    @accessor
+    def groups_can_edit(self):
+        return [self.primary_membership.group.id] + list(self.ephemeral_groups.pluck('id'))
 
     @accessor
     def profile_photos(self):
