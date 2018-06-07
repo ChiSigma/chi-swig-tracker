@@ -9,8 +9,8 @@ from orator.orm import has_many, has_many_through, accessor
 
 
 class Group(model.Model, group_auth.GroupAuthMixin):
-    __hidden__ = ['primary_drinkers', 'primary_memberships', 'ephemeral_memberships', 'ephemeral_drinkers']
-    __appends__ = ['num_days_dry', 'max_days_dry']
+    __fillable__ = ['num_days_dry', 'max_days_dry']
+    __hidden__   = ['primary_drinkers', 'primary_memberships', 'ephemeral_memberships', 'ephemeral_drinkers']
 
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
@@ -43,11 +43,11 @@ class Group(model.Model, group_auth.GroupAuthMixin):
             scope = Group.where_in('groups.id', filtered_ids)
         return scope
 
-    @has_many('drinker_id')
+    @has_many
     def primary_memberships(self):
         return primary_membership.PrimaryMembership
 
-    @has_many('drinker_id')
+    @has_many
     def ephemeral_memberships(self):
         return ephemeral_membership.EphemeralMembership
 
@@ -58,15 +58,6 @@ class Group(model.Model, group_auth.GroupAuthMixin):
     @accessor
     def ephemeral_drinkers(self):
         return self.ephemeral_memberships.pluck('drinker')
-
-    @accessor
-    def max_days_dry(self):
-        drinkers = sorted(self.primary_drinkers, reverse=True, key=lambda d: d.max_days_dry)
-        return drinkers[0].max_days_dry if len(drinkers) > 0 else 0
-
-    @accessor
-    def num_days_dry(self):
-        return self.primary_drinkers.avg('num_days_dry')
 
     @accessor
     def profile_photo(self):

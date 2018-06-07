@@ -1,7 +1,7 @@
 import os
 import logging
 import src.support.scheduler as scheduler
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, send_file, jsonify
 from flask_orator import Orator
 from flask_login import LoginManager
 from .config import DevelopmentConfig, ProductionConfig
@@ -40,12 +40,30 @@ lm = LoginManager(app)
 
 # Scheduler
 if mode != 'development':
-	print "Starting job scheduler"
-	scheduler.scheduler.start()
+    print "Starting job scheduler"
+    scheduler.scheduler.start()
 
 # Initialize Authentication
 from .auth.default import auth_routes
 app.register_blueprint(auth_routes, url_prefix='/auth')
+
+# Register Error Handler
+from .support.exceptions.swig_core_exception import SwigCoreException
+@app.errorhandler(Exception)
+def handle_swig_core_exception(error):
+    status_code = 500
+    payload = {'error': 'The application hit an unknown error. Please contact support.'}
+
+    if isinstance(error, SwigCoreException):
+        payload = error.to_dict()
+        status_code = error.status_code
+    else:
+        # TODO :: Add Slack notificaiton
+        app.logger.error('Unhandled Exception: %s', (error))
+
+    payload.status_code = status_code
+    response = jsonify(payload)
+    return response
 
 # Initialize Routes
 @app.route('/')
