@@ -10,7 +10,7 @@ export default class ProfileCard extends React.Component {
     constructor(props) {
         super(props);
 
-        this.appState = props.context.state;
+        this.appState = () => { return props.context.state };
         this.state = {
             eventData: {},
             isLimited: false,
@@ -19,7 +19,7 @@ export default class ProfileCard extends React.Component {
     }
 
     async componentWillMount() {
-        const eventsQuery = this.appState.eventsQuery(this.props.profile['id'])
+        const eventsQuery = this.appState().eventsQuery(this.props.profile['id'])
         const eventsResp = await fetch('api/events/counts?' + eventsQuery, {credentials: "same-origin"});
         const events = await eventsResp.json();
         this.setState({eventData: events['counts'], isLimited: events['is_limited']})
@@ -64,17 +64,18 @@ export default class ProfileCard extends React.Component {
         const maxDaysDry = this.props.profile["max_days_dry"];
         const numDaysDry = this.props.profile["num_days_dry"];
         const profileColor = this.state.upvote ? "bg-green" : "bg-red";
-        const crestIcon = this.props.profile["primary_group"]["profile_photo"]
+        const crestIcon = this.props.profile["primary_group"] ?this.props.profile["primary_group"]["profile_photo"] : profilePhoto
 
         return (
             <div className="profile-card flipper">
                 <div className="card-front shadow-lg bg-plus p-3">
                     <div className="rounded-corners p-1 bg-red">
-                        <img src={ profilePhoto } alt="profile_photo_active"
-                             className="border-med border-dark rounded-corners w-100"/>
+                        <div className="profile-photo-container border-med border-dark rounded-corners border-dark">
+                            <img src={ profilePhoto } alt="profile_photo_active" className="profile-photo"/>
+                        </div>
                     </div>
-                    <div className="bg-white border-med border-dark rounded-circle position-absolute card-icon">
-                        <img src={ crestIcon } width="50px" alt="Chi_Sigma_Crest_Icon"/>
+                    <div className="bg-white border-med border-dark rounded-circle position-absolute card-icon-container">
+                        <img src={ crestIcon } className="card-icon" alt="Chi_Sigma_Crest_Icon"/>
                     </div>
                     <div className="text-uppercase mt-4">
                         <h4 className="text-black-50 mb-1">Known As</h4>
@@ -82,9 +83,9 @@ export default class ProfileCard extends React.Component {
                     </div>
                 </div>
                 <div className="card-back shadow-lg bg-plus p-3">
-                    <div className={ "rounded-circle position-absolute card-icon p-1 " + profileColor } onClick={ this.toggleVoteType.bind(this) }>
-                        <img src={ profilePhoto } width="50px" alt="profile_photo_active"
-                             className="border-med border-dark rounded-circle "/>
+                    <div className={ "rounded-circle position-absolute card-icon-container p-1 " + profileColor } onClick={ this.toggleVoteType.bind(this) }>
+                        <img src={ profilePhoto } alt="profile_photo_active"
+                             className="border-med border-dark rounded-circle card-icon "/>
                     </div>
                     <div className="text-uppercase ml-1 mt-3">
                         <h6 className="text-black-50 mb-1">Max Days Dry: { maxDaysDry }</h6>

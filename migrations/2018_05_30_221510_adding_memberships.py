@@ -1,14 +1,16 @@
 from orator.migrations import Migration
 
 
-class AddingEphemeralGroups(Migration):
+class AddingMemberships(Migration):
 
     def up(self):
         """
         Run the migrations.
         """
-        with self.schema.create('drinkers_ephemeral_groups') as table:
+        with self.schema.create('memberships') as table:
             table.increments('id')
+            table.boolean('admin').default(False)
+            table.enum('type', ['ephemeral', 'primary'])
             table.integer('drinker_id').unsigned()
             table.foreign('drinker_id').references('id').on('drinkers')
             table.integer('group_id').unsigned()
@@ -18,5 +20,5 @@ class AddingEphemeralGroups(Migration):
         """
         Revert the migrations.
         """
-        with self.schema.table('drinkers_ephemeral_groups') as table:
-            self.schema.drop('drinkers_ephemeral_groups')
+        with self.schema.table('memberships') as table:
+            self.schema.drop('memberships')

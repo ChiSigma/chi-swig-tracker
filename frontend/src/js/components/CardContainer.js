@@ -11,17 +11,14 @@ export default class CardContainer extends React.Component {
     constructor(props) {
         super(props);
 
-        this.appState = props.context.state;
-        this.cache = props.context.cache;
+        this.appState = () => { return this.props.context.state };
+        this.cache = () => { return this.props.context.cache };
 
         this.state = {
             show: false,
-            sortEventType: props.context.state.sortEventType,
-            sortTime: props.context.state.sortTime,
             sortOrder: [],
             eventTypes: {},
             eventTimes: [],
-            version: '',
             profiles: {},
             loading: false
         };
@@ -32,50 +29,39 @@ export default class CardContainer extends React.Component {
         this.handleClose = this.handleClose.bind(this);
     }
 
-    async fetchSort(sortEventType=this.state.sortEventType, sortTime=this.state.sortTime) {
-        const filterQuery = this.appState.filterQuery();
-        const profileType = this.appState.profileType;
+    async fetchSort(sortEventType=this.appState().sortEventType, sortTime=this.appState().sortTime) {
+        const filterQuery = this.appState().filterQuery();
+        const profileType = this.appState().profileType;
         const sortRes = await fetch('api/' + profileType + '/sort?time=' + sortTime + '&event_type_id=' + sortEventType + '&' + filterQuery, {credentials: "same-origin"});
         return await sortRes.json();
     }
 
-    async updateSort(newVersion=false, newSortEventType=false, newSortTime=false) {
-        const sortEventType = newSortEventType ? newSortEventType : this.state.sortEventType;
-        const sortTime = newSortTime ? newSortTime : this.state.sortTime;
+    async updateSort(newSortEventType=false, newSortTime=false) {
+        const sortEventType = newSortEventType ? newSortEventType : this.appState().sortEventType;
+        const sortTime = newSortTime ? newSortTime : this.appState().sortTime;
         const sortOrder = await this.fetchSort(sortEventType, sortTime);
-        const profiles = await this.cache.fetchAll(sortOrder)
+        const profiles = await this.cache().fetchAll(sortOrder)
 
         let newState = {profiles: profiles, sortOrder: sortOrder, loading: false};
-        if (newVersion) newState['version'] = newVersion;
-        if (newSortEventType) newState['sortEventType'] = newSortEventType;
-        if (newSortTime) newState['sortTime'] = newSortTime;
-
         this.setState(newState);
     }
 
-    async fetchVersion() {
-        const filterQuery = this.appState.filterQuery();
-        const profileType = this.appState.profileType;
-        const versionRes = await fetch('api/' + profileType + '/version?' + filterQuery, {credentials: "same-origin"});
-        return versionRes.json();
-    }
-
     componentDidUpdate(prevProps, prevState) {
-        const contextSortEventType = this.appState.sortEventType;
-        const contextSortTime = this.appState.sortTime;
-        if ((contextSortEventType !== this.state.sortEventType || contextSortTime !== this.state.sortTime) && !this.state.loading) {
+        const contextSortEventType = this.appState().sortEventType;
+        const contextSortTime = this.appState().sortTime;
+        const appStateChanged = this.appState().hasChanged(prevProps);
+        if (appStateChanged && !this.state.loading) {
             this.setState({loading: true});
-            this.updateSort(false, contextSortEventType, contextSortTime);
+            this.updateSort(contextSortEventType, contextSortTime);
         }
     }
 
     async componentWillMount() {
         const sort = await this.fetchSort();
-        const version = await this.fetchVersion();
-        const profiles = await this.cache.fetchAll(sort);
+        const version = await this.appState().refreshVersion();
+        const profiles = await this.cache().fetchAll(sort);
 
         this.setState({
-                version: version['version'],
                 profiles: profiles,
                 sortOrder: sort,
                 showStats: 0,
@@ -96,16 +82,11 @@ export default class CardContainer extends React.Component {
     }
 
     async handleRefresh() {
-        const version = await this.fetchVersion();
-
-        if(version['version'] !== this.state.version) {
-            this.setState({loading: true});
-            await this.updateSort(version['version']);
-        }
+        const version = await this.appState().refreshVersion();
     }
 
     autoRefresh() {
-        if (this.appState.autoRefresh) {
+        if (this.appState().autoRefresh) {
             this.handleRefresh();
         }
     }

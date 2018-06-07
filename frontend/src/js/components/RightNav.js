@@ -10,7 +10,7 @@ export default class RightNav extends React.Component {
     constructor(props) {
         super(props);
 
-        this.auth = props.context.auth;
+        this.auth = () => { return this.props.context.auth };
         this.state = {
             isLoggedIn: false,
             isPublic: false,
@@ -19,9 +19,9 @@ export default class RightNav extends React.Component {
     }
 
     async componentWillMount() {
-        const isLoggedIn = await this.auth.isLoggedIn();
-        const isPublic = await this.auth.myPrivacySetting();
-        const me = await this.auth.me();
+        const isLoggedIn = await this.auth().isLoggedIn();
+        const isPublic = await this.auth().myPrivacySetting();
+        const me = await this.auth().me();
         this.setState({
             isLoggedIn: isLoggedIn,
             isPublic: isPublic,

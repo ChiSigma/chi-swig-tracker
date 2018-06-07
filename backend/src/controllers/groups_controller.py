@@ -11,7 +11,7 @@ groups = Blueprint('groups', __name__)
 @groups.route('/', methods=['GET'])
 @inject_in_scope(model=Group, inject='groups')
 def get_groups(groups):
-    return jsonify({'groups': groups.get().serialize(), 'version': groups.version(), 'is_limited': g.get('is_limited', False)})
+    return jsonify({'groups': groups.with_('primary_memberships.drinker').get().serialize(), 'version': groups.version(), 'is_limited': g.get('is_limited', False)})
 
 
 @groups.route('/version', methods=['GET'])

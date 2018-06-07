@@ -10,63 +10,44 @@ class EventAuthMixin(model_auth.ModelAuthMixin):
     def in_primary_scope(self, query, is_or=False):
         # if not current_user.is_anonymous and current_user.superuser: return query
 
-        base_query = (db.query() if is_or else query.clean_query(table_name=EventAuthMixin.table_name)).join('drinkers', 'events.drinker_id', '=', 'drinkers.id')
-        group_id = current_user.primary_group_id if (not current_user.is_anonymous) and current_user.primary_group_id != 1 else 0
+        base_query = db.query() if is_or else query.clean_query(table_name=EventAuthMixin.table_name)
+        primary_group = current_user.primary_group if (not current_user.is_anonymous) and current_user.primary_group.id != 1 else None
+        primary_drinker_ids = list(primary_group.primary_drinkers.lists('id')) if primary_group is not None else []
         drinker_id = current_user.id if not current_user.is_anonymous else 0
-        event_scope = base_query.select('events.id', 'drinker_id').where(db.query().where('drinkers.primary_group_id', '=', group_id) \
-                                                                                    .or_where(db.query().where('drinkers.id', '=', drinker_id)))
-        if is_or:
-            return event_scope
-        else:
-            return event_scope.clean_query(table_name=EventAuthMixin.table_name)
+        return base_query.where_in('events.drinker_id', primary_drinker_ids + [drinker_id])
 
     @scope
     def in_ephemeral_scope(self, query, is_or=False):
         # if not current_user.is_anonymous and current_user.superuser: return query
         
-        base_query = (db.query() if is_or else query.clean_query(table_name=EventAuthMixin.table_name)).join('drinkers', 'events.drinker_id', '=', 'drinkers.id')
+        base_query = db.query() if is_or else query.clean_query(table_name=EventAuthMixin.table_name)
         drinker_id = current_user.id if not current_user.is_anonymous else 0
-        ephemeral_ids = current_user.ephemeral_group_ids if not current_user.is_anonymous else []
-        ephemeral_drinkers = db.table('drinkers_ephemeral_groups').where_in('group_id', ephemeral_ids).lists('drinker_id') + [drinker_id]
-        event_scope = base_query.select('events.id', 'drinker_id').where_in('drinkers.id', ephemeral_drinkers)
-
-        if is_or:
-            return event_scope
-        else:
-            return event_scope.clean_query(table_name=EventAuthMixin.table_name)
+        ephemeral_ids = list(current_user.ephemeral_groups.lists('id')) if not current_user.is_anonymous else []
+        ephemeral_drinkers = list(db.table('memberships').where_in('group_id', ephemeral_ids).where('type', '=', 'ephemeral').lists('drinker_id')) + [drinker_id]
+        return base_query.where_in('drinker_id', ephemeral_drinkers)
 
     @scope
     def in_member_scope(self, query, is_or=False):
         # if not current_user.is_anonymous and current_user.superuser: return query
 
-        base_query = (db.query() if is_or else query.clean_query(table_name=EventAuthMixin.table_name)).join('drinkers', 'events.drinker_id', '=', 'drinkers.id')
-        group_id = current_user.primary_group_id if (not current_user.is_anonymous) and current_user.primary_group_id != 1 else 0
+        base_query = db.query() if is_or else query.clean_query(table_name=EventAuthMixin.table_name)
         drinker_id = current_user.id if not current_user.is_anonymous else 0
-        ephemeral_ids = current_user.ephemeral_group_ids if not current_user.is_anonymous else []
-        ephemeral_drinkers = db.table('drinkers_ephemeral_groups').where_in('group_id', ephemeral_ids).lists('drinker_id')
+        group_ids = list(db.table('memberships').where('drinker_id', '=', drinker_id).lists('group_id'))
+        group_drinkers = list(db.table('memberships').where_in('group_id', group_ids).lists('drinker_id')) + [drinker_id]
 
-        event_scope = base_query.select('events.id', 'drinker_id').where(db.query().where_in('drinkers.id', ephemeral_drinkers) \
-                                                                    .or_where(db.query().where('drinkers.primary_group_id', '=', group_id)) \
-                                                                    .or_where(db.query().where('drinkers.id', '=', drinker_id)))
-        if is_or:
-            return event_scope
-        else:
-            return event_scope.clean_query(table_name=EventAuthMixin.table_name)
+        event_scope = base_query.where_in('drinker_id', group_drinkers)
 
     @scope
     def in_scope(self, query, is_or=False):
         # if not current_user.is_anonymous and current_user.superuser: return query
 
         base_query = (db.query() if is_or else query.clean_query(table_name=EventAuthMixin.table_name)).join('drinkers', 'events.drinker_id', '=', 'drinkers.id')
-        group_id = current_user.primary_group_id if (not current_user.is_anonymous) and current_user.primary_group_id != 1 else 0
         drinker_id = current_user.id if not current_user.is_anonymous else 0
-        ephemeral_ids = current_user.ephemeral_group_ids if not current_user.is_anonymous else []
-        ephemeral_drinkers = db.table('drinkers_ephemeral_groups').where_in('group_id', ephemeral_ids).lists('drinker_id')
+        group_ids = list(db.table('memberships').where('drinker_id', '=', drinker_id).lists('group_id'))
+        group_drinkers = list(db.table('memberships').where_in('group_id', group_ids).lists('drinker_id')) + [drinker_id]
 
         event_scope = base_query.select('events.id', 'drinker_id').where(db.query().where('drinkers.privacy_setting', '=', 'public') \
-                                                                    .or_where(db.query().where_in('drinkers.id', ephemeral_drinkers)) \
-                                                                    .or_where(db.query().where('drinkers.primary_group_id', '=', group_id)) \
-                                                                    .or_where(db.query().where('drinkers.id', '=', drinker_id)))
+                                                                    .or_where(db.query().where_in('drinker_id', group_drinkers)))
 
         if is_or:
             return event_scope

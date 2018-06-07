@@ -11,7 +11,7 @@ class GroupAuthMixin(model_auth.ModelAuthMixin):
         # if not current_user.is_anonymous and current_user.superuser: return query
 
         base_query = db.query() if is_or else query.clean_query(table_name=GroupAuthMixin.table_name)
-        group_id = current_user.primary_group_id if not current_user.is_anonymous else 0
+        group_id = current_user.primary_group.id if not current_user.is_anonymous else 0
         return base_query.where('groups.id', '=', group_id)
 
     @scope
@@ -19,7 +19,7 @@ class GroupAuthMixin(model_auth.ModelAuthMixin):
         # if not current_user.is_anonymous and current_user.superuser: return query
 
         base_query = db.query() if is_or else query.clean_query(table_name=GroupAuthMixin.table_name)
-        ephemeral_ids = current_user.ephemeral_group_ids if not current_user.is_anonymous else []
+        ephemeral_ids = current_user.ephemeral_groups.lists('id') if not current_user.is_anonymous else []
         return base_query.where_in('groups.id', ephemeral_ids)
 
     @scope
@@ -27,20 +27,18 @@ class GroupAuthMixin(model_auth.ModelAuthMixin):
         # if not current_user.is_anonymous and current_user.superuser: return query
 
         base_query = db.query() if is_or else query.clean_query(table_name=GroupAuthMixin.table_name)
-        group_id = current_user.primary_group_id if not current_user.is_anonymous else 0
-        ephemeral_ids = current_user.ephemeral_group_ids if not current_user.is_anonymous else []
+        drinker_id = current_user.id if not current_user.is_anonymous else 0
+        group_ids = db.table('memberships').where('drinker_id', '=', drinker_id).lists('group_id')
 
-        return base_query.where(db.query().where_in('groups.id', ephemeral_ids) \
-                                                                    .or_where(db.query().where('groups.id', '=', group_id)))
+        return base_query.where_in('groups.id', group_ids)
 
     @scope
     def in_scope(self, query, is_or=False):
         # if not current_user.is_anonymous and current_user.superuser: return query
 
         base_query = db.query() if is_or else query.clean_query(table_name=GroupAuthMixin.table_name)
-        group_id = current_user.primary_group_id if not current_user.is_anonymous else 0
-        ephemeral_ids = current_user.ephemeral_group_ids if not current_user.is_anonymous else []
+        drinker_id = current_user.id if not current_user.is_anonymous else 0
+        group_ids = db.table('memberships').where('drinker_id', '=', drinker_id).lists('group_id')
 
         return base_query.where(db.query().where('groups.privacy_setting', '!=', 'unlisted') \
-                                                                    .or_where(db.query().where_in('groups.id', ephemeral_ids)) \
-                                                                    .or_where(db.query().where('groups.id', '=', group_id)))
+                                                                    .or_where(db.query().where_in('groups.id', group_ids)))

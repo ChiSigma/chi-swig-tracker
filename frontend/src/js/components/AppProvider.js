@@ -26,11 +26,31 @@ export default class AppProvider extends Component {
                 profileType: 'drinkers',
                 groups: [],
                 drinkers: [],
+                version: {},
+                checkVersion: async function({ groups, drinkers, profileType}) {
+                    const version = await this.fetchVersion({ groups, drinkers, profileType});
+                    return version;
+                }.bind(this),
+                refreshVersion: async function() {
+                    let state = { ...this.state.state };
+                    const version = await this.fetchVersion();
+                    state.version = version;
+                    this.setState({ state });
+                }.bind(this),
                 updateSort: function(sortEventType=1, sortTime='*') {
-                    console.log({ sortEventType, sortTime })
-                    let state = { ...this.state.state }
+                    let state = { ...this.state.state };
                     state.sortEventType = sortEventType;
                     state.sortTime = sortTime;
+                    this.setState({ state });
+                }.bind(this),
+                updateFilters: async function({ drinkers, groups, profileType }) {
+                    let state = { ...this.state.state };
+                    state.drinkers = drinkers;
+                    state.groups = groups;
+                    state.profileType = profileType;
+
+                    const version = await this.fetchVersion({ groups, drinkers, profileType });
+                    state.version = version;
                     this.setState({ state });
                 }.bind(this),
                 toggleAutoRefresh: function() {
@@ -38,24 +58,43 @@ export default class AppProvider extends Component {
                     state.autoRefresh = !this.state.state.autoRefresh;
                     this.setState({ state });
                 }.bind(this),
-                filterQuery: function() {
-                    return this.sortFilters();
+                filterQuery: function({ groups = false, drinkers = false } = {}) {
+                    return this.sortFilters({ groups, drinkers });
                 }.bind(this),
                 eventsQuery: function(id) {
                     return this.createEventFilter(id);
+                }.bind(this),
+                hasChanged: function(prevProps) {
+                    const prevAppState = prevProps.context.state;
+                    const curAppState = this.state.state;
+                    if (curAppState.sortTime !== prevAppState.sortTime) return true;
+                    if (curAppState.sortEventType !== prevAppState.sortEventType) return true;
+                    if (curAppState.profileType !== prevAppState.profileType) return true;
+                    if (curAppState.version.version !== prevAppState.version.version) return true;
+                    if (curAppState.drinkers.sort().toString() !== prevAppState.drinkers.sort().toString()) return true;
+                    if (curAppState.groups.sort().toString() !== prevAppState.groups.sort().toString()) return true;
+
+                    return false;
                 }.bind(this)
             },
             cache: {
                 drinkers: {},
                 groups: {},
-                fetch: async function(id) {
-                    const type = this.state.state.profileType;
+                fetchFilterSuggestions: async function(type, groups, drinkers) {
+                    let filter = type === 'groups' ? this.sortFilters({ groups: [], drinkers }) : this.sortFilters({ groups, drinkers: [] });
+                    let objs = await this.fetchObjs(type, [], filter);
+                    objs.forEach((obj) => {
+                        this.state.cache[type][obj.id] = obj
+                    });
+
+                    return objs;
+                }.bind(this),
+                fetch: async function(id, type=this.state.state.profileType) {
                     let obj = await this.state.cache[type][id] ? Promise.resolve(this.state.cache[type][id]) : this.fetchObjs(type, [id])[0];
                     if (!this.state.cache[type][id]) this.state.cache[type][id] = obj;
                     return obj;
                 }.bind(this),
-                fetchAll: async function(ids) {
-                    const type = this.state.state.profileType;
+                fetchAll: async function(ids, type=this.state.state.profileType) {
                     let hits = {};
                     let misses = [];
                     ids.forEach((id) => {
@@ -88,12 +127,12 @@ export default class AppProvider extends Component {
         this.setState( { state } );
     }
 
-    sortFilters() {
+    sortFilters({ groups = false, drinkers = false } = {}) {
         let filters = [];
-        let groupIds = this.state.state.groups.join(',');
-        let drinkerIds = this.state.state.drinkers.join(',');
-        if (drinkerIds) filters.push('drinker_ids=' + drinkerIds);
-        if (groupIds) filters.push('group_ids=' + groupIds);
+        let groupIds = groups ? groups : this.state.state.groups.join(',');
+        let drinkerIds = drinkers ? drinkers : this.state.state.drinkers.join(',');
+        if (drinkerIds && drinkerIds.length > 0) filters.push('drinker_ids=' + drinkerIds);
+        if (groupIds && groupIds.length > 0) filters.push('group_ids=' + groupIds);
         return filters.join('&');
     }
 
@@ -102,8 +141,10 @@ export default class AppProvider extends Component {
         return filter += id;
     }
 
-    async fetchObjs(type, ids) {
-        const objResp = await fetch('api/' + type + '/?ids=' + ids.join(','), {credentials: 'same-origin'})
+    async fetchObjs(type, ids, filters=false) {
+        let query = 'api/' + type + '/?ids=' + ids.join(',')
+        if (filters) query += ('&' + filters);
+        const objResp = await fetch(query, {credentials: 'same-origin'})
         const objs = await objResp.json()
         return objs[type]
     }
@@ -115,6 +156,16 @@ export default class AppProvider extends Component {
         auth.currentUser = user;
         this.setState({ auth });
         return user;
+    }
+
+    async fetchVersion({ groups = false, drinkers = false, profileType = false } = {}) {
+        let state = { ...this.state.state }
+        const filterQuery = state.filterQuery({ groups, drinkers });
+        profileType = profileType ? profileType : state.profileType;
+
+        const versionRes = await fetch('api/' + profileType + '/version?' + filterQuery, {credentials: "same-origin"});
+        const version = await versionRes.json()
+        return version;
     }
 
     render() {

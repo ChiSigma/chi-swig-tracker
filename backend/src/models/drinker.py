@@ -3,16 +3,18 @@ import event
 import group
 import event_type
 import ephemeral_membership
+import primary_membership
+import membership
 import src.auth.drinker_auth_mixin as drinker_auth
 from src.app import lm
 from flask_login import UserMixin
-from orator.orm import has_many, accessor, belongs_to, belongs_to_many
+from orator.orm import has_many, has_one, accessor
 
 class Drinker(UserMixin, drinker_auth.DrinkerAuthMixin, model.Model):
     __fillable__ = ['is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'max_days_dry']
-    __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'email', 'ephemeral_groups']
+    __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'email', 'primary_membership']
     __touches__  = ['primary_group']
-    __appends__  = ['profile_photo', 'ephemeral_group_ids']
+    __appends__  = ['profile_photo', 'primary_group']
 
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
@@ -35,7 +37,7 @@ class Drinker(UserMixin, drinker_auth.DrinkerAuthMixin, model.Model):
             append_table = sorted_drinker_ids
             base_table = in_scope_drinker_ids
 
-        return list(base_table) + [group_id for group_id in append_table if group_id not in base_table]
+        return list(base_table) + [drinker_id for drinker_id in append_table if drinker_id not in base_table]
 
     @staticmethod
     def filter(scope, **kwargs):
@@ -48,9 +50,8 @@ class Drinker(UserMixin, drinker_auth.DrinkerAuthMixin, model.Model):
         if kwargs.get('group_ids', []):
             group_ids = kwargs.get('group_ids', [])
             in_scope_drinker_ids = scope.lists('id')
-            primary_drinker_ids = Drinker.where_in('drinkers.id', in_scope_drinker_ids).where_in('drinkers.primary_group_id', group_ids).lists('id')
-            ephemeral_drinker_ids = ephemeral_membership.EphemeralMembership.where_in('group_id', group_ids).where_in('drinker_id', in_scope_drinker_ids).lists('drinker_id')
-            filtered_ids = list((set().union(primary_drinker_ids, ephemeral_drinker_ids)).intersection(in_scope_drinker_ids))
+            drinker_ids = membership.Membership.where_in('group_id', group_ids).where_in('drinker_id', in_scope_drinker_ids).lists('drinker_id')
+            filtered_ids = list(set(drinker_ids).intersection(in_scope_drinker_ids))
             scope = Drinker.where_in('drinkers.id', filtered_ids)
 
         return scope
@@ -63,17 +64,21 @@ class Drinker(UserMixin, drinker_auth.DrinkerAuthMixin, model.Model):
     def events(self):
         return event.Event
 
-    @belongs_to('primary_group_id')
-    def primary_group(self):
-        return group.Group
+    @has_one('drinker_id')
+    def primary_membership(self):
+        return primary_membership.PrimaryMembership
 
-    @belongs_to_many('drinkers_ephemeral_groups')
-    def ephemeral_groups(self):
-        return group.Group
+    @has_many('drinker_id')
+    def ephemeral_memberships(self):
+        return ephemeral_membership.EphemeralMembership.with_('group')
 
     @accessor
-    def ephemeral_group_ids(self):
-        return self.ephemeral_groups.lists('id')
+    def ephemeral_groups(self):
+        return self.ephemeral_memberships.get().pluck('group')
+
+    @accessor
+    def primary_group(self):
+        return self.primary_membership.group
 
     @accessor
     def profile_photos(self):

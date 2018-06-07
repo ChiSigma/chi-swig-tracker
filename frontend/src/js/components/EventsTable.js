@@ -6,8 +6,8 @@ export default class EventsTable extends React.Component {
     constructor(props) {
         super(props);
 
-        this.auth = props.context.auth;
-        this.state = {isLoggedIn: false}
+        this.auth = () => { return this.props.context.auth };
+        this.state = {isLoggedIn: false, profileType: this.props.context.state.profileType}
     }
 
     countsForEventType(eventType) {
@@ -19,7 +19,7 @@ export default class EventsTable extends React.Component {
     }
 
     async componentWillMount() {
-        const isLoggedIn = await this.auth.isLoggedIn();
+        const isLoggedIn = await this.auth().isLoggedIn();
         this.setState({isLoggedIn: isLoggedIn});
     }
 
@@ -36,8 +36,8 @@ export default class EventsTable extends React.Component {
             <th>{time}</th>
         );
 
-        const ifLoggedIn = function(component) {
-            if (!this.state.isLoggedIn) return;
+        const showEventButtons = function(component) {
+            if (!this.state.isLoggedIn || (this.state.profileType === 'groups')) return;
 
             return component;
         }.bind(this);
@@ -47,7 +47,7 @@ export default class EventsTable extends React.Component {
 
         const eventRows = Object.keys(this.props.events).map((eventType) =>
             <tr>
-                { ifLoggedIn((<td>
+                { showEventButtons((<td>
                              <EventButton color={ buttonColor } newDrinkEvent={ this.props.newDrinkEvent.bind(this) } eventType={ this.props.eventTypes[eventType] } />
                             </td>)) }
                 <th>
@@ -61,7 +61,7 @@ export default class EventsTable extends React.Component {
             <table className={ this.props.classes }>
                 <thead>
                     <tr>
-                        { ifLoggedIn((<th>{ addOrDelete }</th>)) }
+                        { showEventButtons((<th>{ addOrDelete }</th>)) }
                         <th>Event Type</th>
                         { eventTimes }
                     </tr>

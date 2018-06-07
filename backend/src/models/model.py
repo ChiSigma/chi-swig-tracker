@@ -5,7 +5,7 @@ from orator.orm import scope
 
 class Model(db.Model):
     @scope
-    def created_within(self, query, time=None):
+    def created_within(self, query, time=None, table_name=''):
         time_ago = time.lower()
 
         if '*' in time_ago or time_ago is None:
@@ -28,7 +28,7 @@ class Model(db.Model):
         else:
             raise "Unknown time format: {0} passed to parse_time!".format(time_ago)
 
-        return query.where('created_at', '>', now - delta)
+        return query.where('{0}created_at'.format(table_name), '>', now - delta)
 
     @scope
     def last(self, query):

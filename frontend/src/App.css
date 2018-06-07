@@ -10,14 +10,51 @@
     width: 100%;
 }
 
+.mini-profile-card .rounded-circle {
+    max-width: 70px;
+    max-height: 70px;
+    width: auto;
+    height: auto;
+}
+
 .profile-card {
     width: 300px !important;
     height: 400px !important;
 }
 
+.profile-photo {
+    max-width: 260px;
+    width: 100%;
+}
+
+.profile-photo-container {
+    max-height: 260px;
+    overflow: hidden;
+}
+
 .card-icon {
+    max-width: 50px;
+    max-height: 60px;
+    width: auto;
+    height: auto;
+}
+
+.scope-limit-warning {
+    color: red;
+    font-size: 10px;
+    font-style: italic;
+    position: relative;
+    top: -10px;
+}
+
+.card-back .card-icon {
+    max-height: 50px;
+}
+
+.card-icon-container {
     margin-left: 210px;
     margin-top: 5px;
+    overflow: hidden;
 }
 
 .event-button {

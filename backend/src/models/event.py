@@ -1,6 +1,6 @@
 import drinker
 import event_type
-import ephemeral_membership
+import primary_membership
 import model
 import src.auth.event_auth_mixin as event_auth
 from orator.orm import belongs_to, scope
@@ -35,7 +35,7 @@ class Event(model.Model, event_auth.EventAuthMixin):
         if kwargs.get('group_ids', []):
             group_ids = list(set(kwargs.get('group_ids', [])))
             in_scope_event_ids = scope.lists('id')
-            primary_drinker_ids = drinker.Drinker.where_in('drinkers.primary_group_id', group_ids).lists('id')
+            primary_drinker_ids = primary_membership.PrimaryMembership.where_in('group_id', group_ids).lists('drinker_id')
             scope = Event.where_in('drinker_id', primary_drinker_ids).where_in('events.id', in_scope_event_ids)
 
         event_ids = scope.lists('id')
