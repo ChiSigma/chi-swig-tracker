@@ -1,10 +1,7 @@
 from flask import Blueprint, request, g
 from flask_orator import jsonify
 from src.auth.default import protect_events, has_access, inject_in_scope
-from src.models.drinker import Drinker
-from src.models.event import Event
-from src.models.event_type import EventType
-from src.models.group import Group
+from src.models import Drinker, Event, EventType, Group
 
 groups = Blueprint('groups', __name__)
 

@@ -2,10 +2,11 @@ import drinker
 import event_type
 import primary_membership
 import model
-import src.auth.event_auth_mixin as event_auth
+from src.auth import EventAuthMixin
 from orator.orm import belongs_to, scope
 
-class Event(model.Model, event_auth.EventAuthMixin):
+
+class Event(model.Model, EventAuthMixin):
     __fillable__ = ['event_type_id']
     __touches__ = ['drinker']
 

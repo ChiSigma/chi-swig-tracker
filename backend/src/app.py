@@ -1,6 +1,5 @@
 import os
 import logging
-import src.support.scheduler as scheduler
 from flask import Flask, render_template, send_file, jsonify
 from flask_orator import Orator
 from flask_login import LoginManager
@@ -40,6 +39,7 @@ lm = LoginManager(app)
 
 # Scheduler
 if mode != 'development':
+    from .support import scheduler
     print "Starting job scheduler"
     scheduler.scheduler.start()
 
@@ -48,7 +48,7 @@ from .auth.default import auth_routes
 app.register_blueprint(auth_routes, url_prefix='/auth')
 
 # Register Error Handler
-from .support.exceptions.swig_core_exception import SwigCoreException
+from .support.exceptions import SwigCoreException
 @app.errorhandler(Exception)
 def handle_swig_core_exception(error):
     status_code = 500
@@ -74,10 +74,7 @@ def index():
 def favicon():
     return send_file(app.template_folder + '/favicon.ico')
 
-from .controllers.drinkers_controller import drinkers
-from .controllers.event_types_controller import event_types
-from .controllers.groups_controller import groups
-from .controllers.events_controller import events
+from .controllers import drinkers, event_types, groups, events
 app.register_blueprint(drinkers, url_prefix="/api/drinkers")
 app.register_blueprint(event_types, url_prefix="/api/event_types")
 app.register_blueprint(groups, url_prefix="/api/groups")

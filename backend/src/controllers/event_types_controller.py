@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_orator import jsonify
-from src.models.event_type import EventType
+from src.models import EventType
 
 event_types = Blueprint('event_types', __name__)
 

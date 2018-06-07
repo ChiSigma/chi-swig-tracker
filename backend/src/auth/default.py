@@ -1,8 +1,7 @@
 import requests
 from src.app import app
-from src.models.drinker import Drinker
-from src.models.primary_membership import PrimaryMembership
-from src.auth.oauth import OAuthSignIn
+from src.models import Drinker, PrimaryMembership
+from oauth import OAuthSignIn
 from src.support import decorators
 from src.support.exceptions import ForbiddenAccessException
 from flask import Blueprint, session, redirect, url_for, request, flash, g

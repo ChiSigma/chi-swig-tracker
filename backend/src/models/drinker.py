@@ -5,13 +5,15 @@ import event_type
 import ephemeral_membership
 import primary_membership
 import membership
-import src.auth.drinker_auth_mixin as drinker_auth
+from src.auth import DrinkerAuthMixin
 from src.app import lm
 from flask_login import UserMixin
 from orator.orm import has_many, has_one, accessor
 
-class Drinker(UserMixin, drinker_auth.DrinkerAuthMixin, model.Model):
-    __fillable__ = ['name', 'email', 'is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'max_days_dry']
+
+class Drinker(UserMixin, DrinkerAuthMixin, model.Model):
+    __fillable__ = ['name', 'email', 'is_public', 'bio_line', 'num_days_dry', 'profile_pivot_increment', 
+                    'profile_pivot_type', 'profile_photos', 'max_days_dry']
     __hidden__   = ['events', 'profile_pivot_increment', 'profile_pivot_type', 'profile_photos', 'email', 'primary_membership']
     __touches__  = ['primary_group']
     __appends__  = ['profile_photo', 'primary_group', 'groups_can_edit']

@@ -3,6 +3,7 @@ import hashlib
 from src.app import db
 from orator.orm import scope
 
+
 class Model(db.Model):
     @scope
     def created_within(self, query, time=None, table_name=''):

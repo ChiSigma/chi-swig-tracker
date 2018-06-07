@@ -4,11 +4,11 @@ import event_type
 import ephemeral_membership
 import primary_membership
 import model
-import src.auth.group_auth_mixin as group_auth
+from src.auth import GroupAuthMixin
 from orator.orm import has_many, has_many_through, accessor
 
 
-class Group(model.Model, group_auth.GroupAuthMixin):
+class Group(model.Model, GroupAuthMixin):
     __fillable__ = ['num_days_dry', 'max_days_dry']
     __hidden__   = ['primary_drinkers', 'primary_memberships', 'ephemeral_memberships', 'ephemeral_drinkers']
 
