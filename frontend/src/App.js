@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import Layout from './js/pages/Layout';
 import AppProvider from './js/components/AppProvider';
+import AppContext from './js/app-context';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 
 class App extends Component {
@@ -23,7 +24,11 @@ class App extends Component {
         return (
             <AppProvider>
                 <div className="App">
-                    <Layout />
+                    <AppContext.Consumer>
+                        {(context) => (
+                            <Layout context={ context } />
+                        )}
+                    </ AppContext.Consumer>
                 </div>
                 <NotificationContainer />
             </AppProvider>

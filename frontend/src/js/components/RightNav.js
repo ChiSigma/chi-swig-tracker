@@ -4,34 +4,35 @@
 import React from 'react';
 
 import LoginButton from './LoginButton';
-import PrivacyButton from './PrivacyButton';
+import PreferencesButton from './PreferencesButton';
 
 export default class RightNav extends React.Component {
     constructor(props) {
         super(props);
 
         this.auth = () => { return this.props.context.auth };
+        this.appState = () => { return this.props.context.state };
         this.state = {
             isLoggedIn: false,
-            isPublic: false,
+            currentView: null,
             me: {}
         }
     }
 
     async componentWillMount() {
         const isLoggedIn = await this.auth().isLoggedIn();
-        const isPublic = await this.auth().myPrivacySetting();
+        const currentView = this.appState().view;
         const me = await this.auth().me();
         this.setState({
             isLoggedIn: isLoggedIn,
-            isPublic: isPublic,
+            currentView: currentView,
             me: me
         })
     }
 
     render() {
         const toggle = this.state.isLoggedIn ? (
-            <PrivacyButton isPublic={this.state.isPublic} myId={this.state.me.id} />
+            <PreferencesButton currentView={ this.state.currentView } toggleView={ this.appState().toggleView } />
         ) : '';
 
         return(

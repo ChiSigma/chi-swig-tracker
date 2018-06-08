@@ -46,7 +46,9 @@ export default class CardContainer extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (!prevProps.context.state.isHydrated && this.appState().isHydrated) {
+        const cacheDoneHydrating = !prevProps.context.state.isHydrated && this.appState().isHydrated;
+        const toggledViews = prevProps.context.state.view !== 'dashboard';
+        if (cacheDoneHydrating || toggledViews) {
             return this.hydrateCardContainer();
         }
         const contextSortEventType = this.appState().sortEventType;
@@ -58,11 +60,17 @@ export default class CardContainer extends React.Component {
         }
     }
 
+    componentWillMount() {
+        if (this.appState().lastView() !== 'dashboard') {
+            return this.hydrateCardContainer();
+        }
+    }
+
     async hydrateCardContainer() {
         let sort = this.fetchSort();
         let version = this.appState().refreshVersion();
         sort = await sort;
-        version = await version;
+        await version;
         const profiles = await this.cache().fetchAll(sort);
         this.setState({
                 profiles: profiles,
@@ -88,7 +96,7 @@ export default class CardContainer extends React.Component {
     }
 
     async handleRefresh() {
-        const version = await this.appState().refreshVersion();
+        await this.appState().refreshVersion();
     }
 
     autoRefresh() {

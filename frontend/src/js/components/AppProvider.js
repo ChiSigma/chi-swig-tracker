@@ -31,8 +31,16 @@ export default class AppProvider extends Component {
                     return user;
                 }.bind(this),
             },
+            admin: {
+                hasChanged: false,
+                drinkers: {},
+                groups: {},
+                group_memberships: {},
+                drink_memberships: {}
+            },
             state: {
                 sortEventType: 1,
+                view: 'dashboard',
                 sortTime: '*',
                 autoRefresh: false,
                 profileType: 'drinkers',
@@ -40,6 +48,27 @@ export default class AppProvider extends Component {
                 drinkers: [],
                 version: {},
                 isHydrated: false,
+                previousStates: [],
+                lastView: function() {
+                    return this.peekState().view || this.state.state.view;
+                }.bind(this),
+                toggleView: function() {
+                    let state = { ...this.state.state };
+                    let admin = { ...this.state.admin };
+
+                    if (state.view === 'dashboard') { 
+                        state.view = 'admin';
+                    } else if (state.view === 'admin') {
+                        if (admin.hasChanged) {
+                            window.location.reload();
+                        } else {
+                            state.view = 'dashboard';
+                        }
+                    }
+                    this.pushState();
+                    this.setState({ state });
+                    return state.view;
+                }.bind(this),
                 checkVersion: async function({ groups, drinkers, profileType}) {
                     const version = await this.fetchVersion({ groups, drinkers, profileType});
                     return version;
@@ -48,12 +77,14 @@ export default class AppProvider extends Component {
                     let state = { ...this.state.state };
                     const version = await this.fetchVersion();
                     state.version = version;
+                    this.pushState();
                     this.setState({ state });
                 }.bind(this),
                 updateSort: function(sortEventType=1, sortTime='*') {
                     let state = { ...this.state.state };
                     state.sortEventType = sortEventType;
                     state.sortTime = sortTime;
+                    this.pushState();
                     this.setState({ state });
                 }.bind(this),
                 updateFilters: async function({ drinkers, groups, profileType }) {
@@ -64,11 +95,13 @@ export default class AppProvider extends Component {
 
                     const version = await this.fetchVersion({ groups, drinkers, profileType });
                     state.version = version;
+                    this.pushState();
                     this.setState({ state });
                 }.bind(this),
                 toggleAutoRefresh: function() {
                     let state = { ...this.state.state }
                     state.autoRefresh = !this.state.state.autoRefresh;
+                    this.pushState();
                     this.setState({ state });
                 }.bind(this),
                 filterQuery: function({ groups = false, drinkers = false } = {}) {
@@ -151,6 +184,22 @@ export default class AppProvider extends Component {
         if (drinkerIds && drinkerIds.length > 0) filters.push('drinker_ids=' + drinkerIds);
         if (groupIds && groupIds.length > 0) filters.push('group_ids=' + groupIds);
         return filters.join('&');
+    }
+
+    pushState() {
+        const state = { ...this.state.state }
+        this.state.state.previousStates.push(state);
+    }
+
+    peekState() {
+        const state = { ...this.state.state }
+        return state.previousStates[state.previousStates.length - 1] || {};
+    
+    }
+
+    popState() {
+        const state = { ...this.state.state }
+        return state.previousStates.pop() || {};
     }
 
     createEventFilter(id) {

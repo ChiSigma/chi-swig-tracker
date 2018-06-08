@@ -59,7 +59,6 @@ export default class ProfileCard extends React.Component {
         }
 
         const profilePhoto = this.props.profile["profile_photo"];
-        const bio = this.props.profile["bio_line"];
         const name = this.props.profile["name"];
         const maxDaysDry = this.props.profile["max_days_dry"];
         const numDaysDry = this.props.profile["num_days_dry"];

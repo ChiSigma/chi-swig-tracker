@@ -12,14 +12,6 @@ export default class EventsTable extends React.Component {
     }
 
     render() {
-        const tableHeaders = () => {
-            let tableData = '<thead><tr>'; 
-            for (var eventTime in this.props.eventTime) {
-                tableData += '<th>' + eventTime + '</th>'
-            }
-            return tableData + '</tr></thead>'
-        }
-
         const eventTimes = this.props.eventTimes.map((time) =>
             <th>{time}</th>
         );
