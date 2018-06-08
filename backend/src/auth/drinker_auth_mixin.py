@@ -7,8 +7,16 @@ class DrinkerAuthMixin(model_auth.ModelAuthMixin):
     table_name = 'drinkers'
 
     @scope
+    def in_admin_scope(self, query, is_or=False):
+        if not current_user.is_anonymous and current_user.superuser: return query
+
+        base_query = db.query() if is_or else query.clean_query(table_name=DrinkerAuthMixin.table_name)
+        drinker_id = current_user.id if not current_user.is_anonymous else 0
+        return base_query.where('drinkers.id', '=', drinker_id)
+
+    @scope
     def in_primary_scope(self, query, is_or=False):
-        # if not current_user.is_anonymous and current_user.superuser: return query
+        if not current_user.is_anonymous and current_user.superuser: return query
 
         base_query = db.query() if is_or else query.clean_query(table_name=DrinkerAuthMixin.table_name)
         primary_group = current_user.primary_group if (not current_user.is_anonymous) and current_user.primary_group.id != 1 else None
@@ -19,7 +27,7 @@ class DrinkerAuthMixin(model_auth.ModelAuthMixin):
 
     @scope
     def in_ephemeral_scope(self, query, is_or=False):
-        # if not current_user.is_anonymous and current_user.superuser: return query
+        if not current_user.is_anonymous and current_user.superuser: return query
         
         base_query = db.query() if is_or else query.clean_query(table_name=DrinkerAuthMixin.table_name)
         drinker_id = current_user.id if not current_user.is_anonymous else 0
@@ -30,7 +38,7 @@ class DrinkerAuthMixin(model_auth.ModelAuthMixin):
 
     @scope
     def in_member_scope(self, query, is_or=False):
-        # if not current_user.is_anonymous and current_user.superuser: return query
+        if not current_user.is_anonymous and current_user.superuser: return query
 
         base_query = db.query() if is_or else query.clean_query(table_name=DrinkerAuthMixin.table_name)
         drinker_id = current_user.id if not current_user.is_anonymous else 0
@@ -41,7 +49,7 @@ class DrinkerAuthMixin(model_auth.ModelAuthMixin):
 
     @scope
     def in_scope(self, query, is_or=False):
-        # if not current_user.is_anonymous and current_user.superuser: return query
+        if not current_user.is_anonymous and current_user.superuser: return query
 
         base_query = db.query() if is_or else query.clean_query(table_name=DrinkerAuthMixin.table_name)
         drinker_id = current_user.id if not current_user.is_anonymous else 0

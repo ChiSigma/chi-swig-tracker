@@ -1,6 +1,6 @@
 from flask import Blueprint, request, g
 from flask_orator import jsonify
-from src.auth.default import protect_events, has_access, inject_in_scope
+from src.auth.default import has_access, inject_in_scope
 from src.models import Drinker, Event, EventType, Group
 
 events = Blueprint('events', __name__)

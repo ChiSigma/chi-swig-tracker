@@ -12,9 +12,9 @@ class AddingMemberships(Migration):
             table.boolean('admin').default(False)
             table.enum('type', ['ephemeral', 'primary'])
             table.integer('drinker_id').unsigned()
-            table.foreign('drinker_id').references('id').on('drinkers')
+            table.foreign('drinker_id').references('id').on('drinkers').on_delete('cascade')
             table.integer('group_id').unsigned()
-            table.foreign('group_id').references('id').on('groups')
+            table.foreign('group_id').references('id').on('groups').on_delete('cascade')
 
     def down(self):
         """

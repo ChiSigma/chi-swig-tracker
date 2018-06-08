@@ -3,14 +3,17 @@ import event
 import event_type
 import ephemeral_membership
 import primary_membership
-import model
+from model import Model
 from src.auth import GroupAuthMixin
 from orator.orm import has_many, has_many_through, accessor
 
 
-class Group(model.Model, GroupAuthMixin):
-    __fillable__ = ['num_days_dry', 'max_days_dry']
+class Group(Model, GroupAuthMixin):
+    __fillable__ = ['name', 'profile_photo', 'bio_line', 'privacy_setting', 'num_days_dry', 'max_days_dry']
     __hidden__   = ['primary_drinkers', 'primary_memberships', 'ephemeral_memberships', 'ephemeral_drinkers']
+
+    __admin__    = ['name', 'profile_photo', 'bio_line', 'privacy_setting'] 
+    __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line']
 
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None, in_scope=None):

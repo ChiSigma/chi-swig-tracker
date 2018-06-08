@@ -3,7 +3,7 @@ from src.app import app
 from src.models import Drinker, PrimaryMembership
 from oauth import OAuthSignIn
 from src.support import decorators
-from src.support.exceptions import ForbiddenAccessException
+from src.support.exceptions import ForbiddenAccessException, InvalidRequestException
 from flask import Blueprint, session, redirect, url_for, request, flash, g
 from flask_login import login_user, logout_user, current_user 
 from flask_orator import jsonify
@@ -59,9 +59,22 @@ def get_me():
 def has_access(f, **params):
   @wraps(f)
   def decorated(*args, **kwargs):
+    is_superuser = current_user and current_user.superuser
+    requested_model_id = kwargs.get(params['id_key'], None)
+    
+    if params.get('superuser', False) and not is_superuser:
+      raise ForbiddenAccessException('{0}: {1}'.format(params['model'].__name__, requested_model_id))
+
     scope = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
-    if kwargs[params['id_key']] not in getattr(params['model'], scope)().lists('id'):
-      raise ForbiddenAccessException('You do not have access to {0}: {1}').format(params['model'].name, params['id_key'])
+    models = {m.id: m for m in getattr(params['model'], scope)().get()}
+
+    if requested_model_id not in models and not params.get('superuser', False):
+      raise ForbiddenAccessException('{0}: {1}'.format(params['model'].__name__, requested_model_id))
+
+    if params.get('inject', False):
+      kwargs[params['id_key'].replace('_id', '')] = models[requested_model_id]
+      del kwargs[params['id_key']]
+
     return f(*args, **kwargs)
     
   return decorated
@@ -84,15 +97,41 @@ def inject_in_scope(f, **params):
     scope = getattr(filtered_scope, scope_method)()
 
     kwargs[params['inject']] = scope
-    g.is_limited = unscoped_length > scope.count()
+    scoped_length = scope.count()
+    g.num_in_scope = scoped_length
+    g.is_limited = unscoped_length > scoped_length
 
     return f(*args, **kwargs)
     
   return decorated
 
 
-def protect_events(drinker=None):
-    if not drinker.is_public and current_user.is_anonymous:
-        return True
-    else:
-        return False
+@decorators.parametrized
+def inject_request_body(f, **params):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    data = request.get_json(force=True, silent=True)
+    if data is None:
+      raise InvalidRequestException('Expected a JSON request body!')
+
+    if 'allowed' in params:
+      data = {k:data[k] for k in params['allowed'] if k in data}
+
+    kwargs['data'] = data
+    return f(*args, **kwargs)
+
+  return decorated
+
+
+@decorators.parametrized
+def verify_presence(f, **params):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        required = params.get('required', [])
+        for field in required:
+            request_data = kwargs.get('data', {})
+            if field not in request_data:
+                raise InvalidRequestException('Expected Field: {0}'.format(field))
+        return f(*args, **kwargs)
+
+    return decorated

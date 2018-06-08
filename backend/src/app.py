@@ -49,7 +49,10 @@ app.register_blueprint(auth_routes, url_prefix='/auth')
 
 # Register Error Handler
 from .support.exceptions import SwigCoreException
-@app.errorhandler(Exception)
+base_class_exception = Exception
+if mode == 'development':
+    base_class_exception = SwigCoreException
+@app.errorhandler(base_class_exception)
 def handle_swig_core_exception(error):
     status_code = 500
     payload = {'error': 'The application hit an unknown error. Please contact support.'}
@@ -65,7 +68,7 @@ def handle_swig_core_exception(error):
     response = jsonify(payload)
     return response
 
-# Initialize Routes
+# Initialize Default Routes
 @app.route('/')
 def index():
 	return render_template('index.html')
@@ -74,8 +77,16 @@ def index():
 def favicon():
     return send_file(app.template_folder + '/favicon.ico')
 
+
+# Initialize Default API Routes
 from .controllers import drinkers, event_types, groups, events
 app.register_blueprint(drinkers, url_prefix="/api/drinkers")
 app.register_blueprint(event_types, url_prefix="/api/event_types")
 app.register_blueprint(groups, url_prefix="/api/groups")
 app.register_blueprint(events, url_prefix="/api/events")
+
+# Initialize Admin API Routes
+from .controllers.admin import drinkers_admin, groups_admin, memberships_admin
+app.register_blueprint(drinkers_admin, url_prefix="/api/admin/drinkers")
+app.register_blueprint(groups_admin, url_prefix="/api/admin/groups")
+app.register_blueprint(memberships_admin, url_prefix="/api/admin/memberships")

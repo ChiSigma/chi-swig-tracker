@@ -15,13 +15,13 @@ def update_drinkers_num_days_dry():
             if d.id not in wet_drinkers:
                 dry_day_count = d.num_days_dry + 1
                 print "Increasing {0}'s Dry Streak to {1} days.".format(d.name, dry_day_count)
-                d.update(num_days_dry=dry_day_count)
+                d.unsafe_update(num_days_dry=dry_day_count)
 
                 if dry_day_count > d.max_days_dry:
-            	   d.update(max_days_dry=dry_day_count)
+            	   d.unsafe_update(max_days_dry=dry_day_count)
             else:
                 print "Resetting {0}'s Dry Streak to 0.".format(d.name)
-                d.update(num_days_dry=0)
+                d.unsafe_update(num_days_dry=0)
 
 
 @scheduler.scheduled_job('cron', hour=4)
@@ -37,10 +37,10 @@ def update_groups_num_days_dry():
             if len(drinkers.intersection(wet_drinkers)) == 0:
                 dry_day_count = g.num_days_dry + 1
                 print "Increasing {0}'s Dry Streak to {1} days.".format(g.name, dry_day_count)
-                g.update(num_days_dry=dry_day_count)
+                g.unsafe_update(num_days_dry=dry_day_count)
 
                 if dry_day_count > g.max_days_dry:
-                    g.update(max_days_dry=dry_day_count)
+                    g.unsafe_update(max_days_dry=dry_day_count)
             else:
                 print "Resetting {0}'s Dry Streak to 0.".format(g.name)
-                g.update(num_days_dry=0)
+                g.unsafe_update(num_days_dry=0)

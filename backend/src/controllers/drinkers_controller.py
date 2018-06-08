@@ -1,7 +1,7 @@
 from flask import Blueprint, request, g
 from flask_orator import jsonify
 from src.support.exceptions import NoModelException
-from src.auth.default import protect_events, has_access, inject_in_scope
+from src.auth.default import has_access, inject_in_scope
 from src.models import Drinker, Event, EventType
 
 drinkers = Blueprint('drinkers', __name__)
@@ -10,7 +10,7 @@ drinkers = Blueprint('drinkers', __name__)
 @drinkers.route('', methods=['GET'])
 @inject_in_scope(model=Drinker, inject='drinkers')
 def get_drinkers(drinkers):
-    return jsonify({'drinkers': drinkers.with_('primary_membership.group', 'ephemeral_memberships.group').get().serialize(), 'version': drinkers.version(), 'is_limited': g.get('is_limited', False)})
+    return jsonify({'drinkers': drinkers.with_('primary_membership.group', 'ephemeral_memberships.group').public_serialize(), 'version': drinkers.version(), 'is_limited': g.get('is_limited', False)})
 
 
 @drinkers.route('/version', methods=['GET'])
