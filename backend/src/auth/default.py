@@ -8,6 +8,7 @@ from flask import Blueprint, session, redirect, url_for, request, flash, g
 from flask_login import login_user, logout_user, current_user 
 from flask_orator import jsonify
 from functools import wraps
+from src.support.utils import keydefaultdict
 
 auth_routes = Blueprint('auth_routes', __name__)
 
@@ -27,7 +28,6 @@ def callback_handling():
   if drinker is None:
     with Drinker.transaction():
       drinker = Drinker.create(_unsafe=True, name=name, email=email)
-      PrimaryMembership.create(_unsafe=True, drinker_id=drinker.id, group_id=1)
 
   login_user(drinker, True)
   return redirect(url_for('index'))
@@ -59,21 +59,35 @@ def get_me():
 def has_access(f, **params):
   @wraps(f)
   def decorated(*args, **kwargs):
-    is_superuser = current_user and current_user.superuser
-    requested_model_id = kwargs.get(params['id_key'], None)
+    is_superuser = (not current_user.is_anonymous) and current_user.superuser
+    superuser_required = params.get('superuser', False)
+    # Short circuit if superuser level is required and current_user isn't super
+    if superuser_required and not is_superuser:
+      raise ForbiddenAccessException('this superuser-required action.')
+
+    # Models mapped to the key to lookup the requested model.id in kwargs
+    models_and_id_keys = { params['model']: params['id_key'] } if 'id_key' in params else params.get('id_keys', {})
+
+    # Models mapped to the requested model.id
+    models_and_ids = { model: kwargs[models_and_id_keys[model]] for model in models_and_id_keys }
+
+    # Method to call on model to get the desired scope
+    scope_method = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
+
+    # Cache of Model mapped to the individual models that are in scope
+    # Not really being used, but could be useful to set on g and use in all auth methods
+    models_in_scope_cache = keydefaultdict(lambda model: getattr(model, scope_method)().get())
     
-    if params.get('superuser', False) and not is_superuser:
-      raise ForbiddenAccessException('{0}: {1}'.format(params['model'].__name__, requested_model_id))
+    for model in models_and_ids:
+      requested_model_id = models_and_ids[model]
+      models = { m.id: m for m in models_in_scope_cache[model] }
 
-    scope = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
-    models = {m.id: m for m in getattr(params['model'], scope)().get()}
+      if requested_model_id not in models:
+        raise ForbiddenAccessException('{0}: {1}'.format(model.__name__, requested_model_id))
 
-    if requested_model_id not in models and not params.get('superuser', False):
-      raise ForbiddenAccessException('{0}: {1}'.format(params['model'].__name__, requested_model_id))
-
-    if params.get('inject', False):
-      kwargs[params['id_key'].replace('_id', '')] = models[requested_model_id]
-      del kwargs[params['id_key']]
+      if params.get('inject', False):
+        kwargs[models_and_id_keys[model].replace('_id', '')] = models[requested_model_id]
+        del kwargs[models_and_id_keys[model]]
 
     return f(*args, **kwargs)
     
@@ -88,9 +102,15 @@ def inject_in_scope(f, **params):
     drinker_ids = [int(d) for d in request.args.get('drinker_ids').split(',') if d.isdigit()] if 'drinker_ids' in request.args else []
     group_ids = [int(d) for d in request.args.get('group_ids').split(',') if d.isdigit()] if 'group_ids' in request.args else []
     event_type_ids = [int(d) for d in request.args['event_type_ids'].split(',') if d.isdigit()] if 'event_type_ids' in request.args else []
-    time = request.args['time'] if 'time' in request.args else None
+    membership_policies = [mp for mp in request.args['membership_policies'].split(',')] if 'membership_policies' in request.args else []
+    time = request.args.get('time', None)
 
-    filtered_scope = getattr(params['model'], 'filter')(params['model'], ids=ids, drinker_ids=drinker_ids, group_ids=group_ids, event_type_ids=event_type_ids, time=time)
+    filtered_scope = getattr(params['model'], 'filter')(params['model'], ids=ids, 
+                                                                         drinker_ids=drinker_ids, 
+                                                                         group_ids=group_ids, 
+                                                                         event_type_ids=event_type_ids, 
+                                                                         time=time,
+                                                                         membership_policies=membership_policies)
     
     scope_method = 'in_{0}_scope'.format(params['scope']) if 'scope' in params else 'in_scope'
     unscoped_length = filtered_scope.count()

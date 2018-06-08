@@ -1,12 +1,9 @@
 from functools import update_wrapper
 from orator.orm import scope
+from src.support.utils import SerializedCollection
 
 
 class serializer(scope):
-    class SerializedCollection(list):
-        def __nonzero__(self):
-            return True
-
     def __init__(self, method):
         super(serializer, self).__init__(method)
 
@@ -35,4 +32,4 @@ class serializer(scope):
             return self.__pluck__(self._instance.serialize(), attributes)
         else:
             models = map(lambda m: self.__pluck__(m, attributes), args[0].get().serialize())
-            return self.SerializedCollection(models)
+            return SerializedCollection(models)

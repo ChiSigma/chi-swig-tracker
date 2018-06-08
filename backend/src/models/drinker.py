@@ -4,7 +4,7 @@ import event_type
 import ephemeral_membership
 import primary_membership
 import membership
-from concerns import model_concerns
+from concerns import model_concerns, drinker_concerns
 from model import Model
 from src.auth import DrinkerAuthMixin
 from src.app import lm
@@ -12,7 +12,7 @@ from flask_login import UserMixin
 from orator.orm import has_many, has_one, accessor
 
 
-class Drinker(model_concerns.ModelConcerns, DrinkerAuthMixin, UserMixin, Model):
+class Drinker(model_concerns.ModelConcerns, drinker_concerns.DrinkerConcerns, DrinkerAuthMixin, UserMixin, Model):
     __fillable__ = ['name', 'email', 'profile_photos', 'bio_line', 'privacy_setting', 'membership_policy', 'num_days_dry', 'max_days_dry']
     __hidden__   = ['events', 'superuser', 'ephemeral_memberships', 'profile_pivot_increment', 'profile_pivot_type', 'email', 'primary_membership']
     __touches__  = ['primary_group']
@@ -60,6 +60,11 @@ class Drinker(model_concerns.ModelConcerns, DrinkerAuthMixin, UserMixin, Model):
             filtered_ids = list(set(drinker_ids).intersection(in_scope_drinker_ids))
             scope = Drinker.where_in('drinkers.id', filtered_ids)
 
+        if kwargs.get('membership_policies', []):
+            membership_policies = kwargs.get('membership_policies', [])
+            in_scope_ids = scope.lists('id')
+            scope = Drinker.where_in('drinkers.membership_policy', membership_policies)
+
         return scope
 
     @lm.user_loader
@@ -84,7 +89,7 @@ class Drinker(model_concerns.ModelConcerns, DrinkerAuthMixin, UserMixin, Model):
 
     @accessor
     def primary_group(self):
-        return self.primary_membership.group if self.primary_membership else {}
+        return self.primary_membership.group
 
     @accessor
     def groups_can_edit(self):
@@ -109,6 +114,9 @@ class Drinker(model_concerns.ModelConcerns, DrinkerAuthMixin, UserMixin, Model):
 
     def is_dry(self):
         return self.events().where('event_type_id', '=', 1).created_within(time='24h').count() == 0
+
+    def is_admin(self):
+        return self.id in self.primary_group.admins
 
     def event_counts(self):
         event_sums = {e_type.name: {window[0]: 0 for window in event_type.EventType.COUNT_WINDOWS} for e_type in event_type.EventType.all()}

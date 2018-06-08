@@ -19,9 +19,10 @@ def inject_in_scope(f, **params):
 
 @decorators.parametrized
 def has_access(f, **params):
+  params['scope'] = 'admin'
+
   @wraps(f)
-  @default_has_access(model=params['model'], id_key=params.get('id_key', None), scope='admin', 
-                      superuser=params.get('superuser', False), inject=params.get('inject', False))
+  @default_has_access(**params)
   def decorated(*args, **kwargs):
     return f(*args, **kwargs)
     

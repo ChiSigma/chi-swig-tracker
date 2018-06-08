@@ -2,12 +2,15 @@ from flask import Blueprint, request, g
 from flask_orator import jsonify
 from src.auth.admin import inject_in_scope, has_access, verify_enums, verify_char_lens
 from src.auth.default import inject_request_body, verify_presence
-from src.models import Group
+from src.models import Group, Membership
 
 groups_admin = Blueprint('groups_admin', __name__)
 REQUIRED_VALUES = ['name']
 VALID_PRIVACY_SETTINGS = ['public', 'hide_events', 'unlisted']
 VALID_MEMBERSHIP_SETTINGS = ['open', 'private', 'ephemeral', 'primary']
+VALID_MEMBERSHIP_TYPES = ['primary', 'ephemeral']
+ALLOWED_MEMBERSHIP_FIELDS = ['drinker_id', 'group_id', 'type', 'admin']
+REQUIRED_MEMBERSHIP_FIELDS = ['drinker_id', 'group_id', 'type']
 NAME_CHAR_LIMIT = 10
 BIO_CHAR_LIMIT = 22
 
@@ -44,3 +47,35 @@ def create_group(data):
 def delete_group(group):
     success = group.delete()
     return jsonify(success)
+
+
+@groups_admin.route('/<int:group_id>/memberships', methods=['GET'])
+@has_access(model=Group, id_key='group_id', inject=True)
+def get_memberships(group):
+    return jsonify(Membership.where('group_id', '=', group.id).get().serialize())
+
+
+@groups_admin.route('/<int:group_id>/memberships/<int:membership_id>', methods=['DELETE'])
+@has_access(id_keys={ Group: 'group_id', Membership: 'membership_id' } , inject=True)
+def delete_membership(group, membership):
+    success = membership.delete()
+    return jsonify(success)
+
+
+@groups_admin.route('/<int:group_id>/memberships/<int:membership_id>', methods=['PUT'])
+@has_access(id_keys={ Group: 'group_id', Membership: 'membership_id' } , inject=True)
+@inject_request_body(allowed=ALLOWED_MEMBERSHIP_FIELDS)
+@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': [True, False]})
+def edit_membership(group, membership, data):
+    membership.update(data)
+    return jsonify(membership.serialize())
+
+
+@groups_admin.route('/<int:group_id>/memberships', methods=['POST'])
+@has_access(id_keys={ Group: 'group_id' } , inject=True)
+@inject_request_body(allowed=ALLOWED_MEMBERSHIP_FIELDS)
+@verify_presence(required=REQUIRED_MEMBERSHIP_FIELDS)
+@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': [True, False]})
+def create_membership(group, data):
+    membership = membership.create(data)
+    return jsonify(membership.serialize())

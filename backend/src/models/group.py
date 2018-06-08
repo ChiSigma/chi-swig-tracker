@@ -11,7 +11,7 @@ from orator.orm import has_many, has_many_through, accessor
 
 class Group(model_concerns.ModelConcerns, group_concerns.GroupConcerns, GroupAuthMixin, Model):
     __fillable__ = ['name', 'profile_photo', 'bio_line', 'privacy_setting', 'membership_policy', 'num_days_dry', 'max_days_dry']
-    __hidden__   = ['primary_drinkers', 'primary_memberships', 'ephemeral_memberships', 'ephemeral_drinkers']
+    __hidden__   = ['primary_drinkers', 'primary_memberships', 'ephemeral_memberships', 'ephemeral_drinkers', 'admins']
 
     __admin__    = ['name', 'profile_photo', 'bio_line', 'privacy_setting', 'membership_policy'] 
     __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line']
@@ -45,6 +45,12 @@ class Group(model_concerns.ModelConcerns, group_concerns.GroupConcerns, GroupAut
             in_scope_ids = set(scope.lists('id'))
             filtered_ids = list(in_scope_ids.intersection(group_ids))
             scope = Group.where_in('groups.id', filtered_ids)
+
+        if kwargs.get('membership_policies', []):
+            membership_policies = kwargs.get('membership_policies', [])
+            in_scope_ids = scope.lists('id')
+            scope = Group.where_in('groups.membership_policy', membership_policies)
+
         return scope
 
     @has_many
@@ -62,6 +68,10 @@ class Group(model_concerns.ModelConcerns, group_concerns.GroupConcerns, GroupAut
     @accessor
     def ephemeral_drinkers(self):
         return self.ephemeral_memberships.pluck('drinker')
+
+    @accessor
+    def admins(self):
+        return list(map(lambda pm: pm.drinker_id, filter(lambda pm: pm.admin, self.primary_memberships)))
 
     @accessor
     def profile_photo(self):

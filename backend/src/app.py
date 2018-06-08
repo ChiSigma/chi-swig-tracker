@@ -64,9 +64,8 @@ def handle_swig_core_exception(error):
         # TODO :: Add Slack notificaiton
         app.logger.error('Unhandled Exception: %s', (error))
 
-    payload['status_code'] = status_code
     response = jsonify(payload)
-    return response
+    return response, status_code
 
 # Initialize Default Routes
 @app.route('/')
@@ -76,7 +75,6 @@ def index():
 @app.route('/favicon.ico')
 def favicon():
     return send_file(app.template_folder + '/favicon.ico')
-
 
 # Initialize Default API Routes
 from .controllers import drinkers, event_types, groups, events

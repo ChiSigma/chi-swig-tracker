@@ -4,3 +4,4 @@ from no_model_exception import NoModelException
 from invalid_enum_exception import InvalidEnumException
 from invalid_request_exception import InvalidRequestException
 from invalid_char_exception import InvalidCharException
+from orphan_exception import OrphanException

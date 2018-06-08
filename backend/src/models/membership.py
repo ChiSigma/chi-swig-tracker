@@ -2,10 +2,11 @@ import src.support.sti_scope as sti_scope
 from concerns import model_concerns
 from orator import Model
 from orator.orm import belongs_to
+from src.auth import MembershipAuthMixin
 
 
-class Membership(model_concerns.ModelConcerns, Model):
-    __fillable__  = ['drinker_id', 'group_id', 'type']
+class Membership(model_concerns.ModelConcerns, MembershipAuthMixin, Model):
+    __fillable__  = ['drinker_id', 'group_id', 'type', 'admin']
     __table__     = 'memberships'
     __sti_type__  = None
     __timestamps__ = False
