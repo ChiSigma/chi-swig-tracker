@@ -6,6 +6,7 @@ from src.models import Drinker
 
 drinkers_admin = Blueprint('drinkers_admin', __name__)
 VALID_PRIVACY_SETTINGS = ['public', 'hide_events', 'unlisted']
+VALID_MEMBERSHIP_SETTINGS = ['open', 'private', 'ephemeral', 'primary']
 NAME_CHAR_LIMIT = 10
 BIO_CHAR_LIMIT = 22
 
@@ -19,7 +20,7 @@ def get_drinkers(drinkers):
 @drinkers_admin.route('/<int:drinker_id>', methods=['PUT'])
 @has_access(model=Drinker, id_key='drinker_id', inject=True)
 @inject_request_body(allowed=Drinker.admin_writable())
-@verify_enums(enumerated_values={'privacy_setting': VALID_PRIVACY_SETTINGS})
+@verify_enums(enumerated_values={'privacy_setting': VALID_PRIVACY_SETTINGS, 'membership_policy': VALID_MEMBERSHIP_SETTINGS})
 @verify_char_lens(char_values={'name': NAME_CHAR_LIMIT, 'bio_line': BIO_CHAR_LIMIT})
 def edit_drinker(drinker, data):
     if 'profile_photos' in data:
@@ -28,3 +29,10 @@ def edit_drinker(drinker, data):
 
     drinker.update(data)
     return jsonify(drinker.admin_serialize())
+
+
+@drinkers_admin.route('/<int:drinker_id>', methods=['DELETE'])
+@has_access(model=Drinker, id_key='drinker_id', inject=True, superuser=True)
+def delete_drinker(drinker):
+    success = drinker.delete()
+    return jsonify(success)

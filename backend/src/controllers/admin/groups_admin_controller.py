@@ -7,6 +7,7 @@ from src.models import Group
 groups_admin = Blueprint('groups_admin', __name__)
 REQUIRED_VALUES = ['name']
 VALID_PRIVACY_SETTINGS = ['public', 'hide_events', 'unlisted']
+VALID_MEMBERSHIP_SETTINGS = ['open', 'private', 'ephemeral', 'primary']
 NAME_CHAR_LIMIT = 10
 BIO_CHAR_LIMIT = 22
 
@@ -20,7 +21,7 @@ def get_groups(groups):
 @groups_admin.route('/<int:group_id>', methods=['PUT'])
 @has_access(model=Group, id_key='group_id', inject=True)
 @inject_request_body(allowed=Group.admin_writable())
-@verify_enums(enumerated_values={'privacy_setting': VALID_PRIVACY_SETTINGS})
+@verify_enums(enumerated_values={'privacy_setting': VALID_PRIVACY_SETTINGS, 'membership_policy': VALID_MEMBERSHIP_SETTINGS})
 @verify_char_lens(char_values={'name': NAME_CHAR_LIMIT, 'bio_line': BIO_CHAR_LIMIT})
 def edit_group(group, data):
     group.update(data)

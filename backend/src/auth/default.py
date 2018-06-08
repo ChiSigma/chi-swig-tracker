@@ -26,8 +26,8 @@ def callback_handling():
 
   if drinker is None:
     with Drinker.transaction():
-      drinker = Drinker.create(name=name, email=email)
-      PrimaryMembership.create(drinker_id=drinker.id, group_id=1)
+      drinker = Drinker.create(_unsafe=True, name=name, email=email)
+      PrimaryMembership.create(_unsafe=True, drinker_id=drinker.id, group_id=1)
 
   login_user(drinker, True)
   return redirect(url_for('index'))

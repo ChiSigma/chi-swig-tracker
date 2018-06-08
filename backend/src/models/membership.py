@@ -1,9 +1,10 @@
 import src.support.sti_scope as sti_scope
+from concerns import model_concerns
 from orator import Model
 from orator.orm import belongs_to
 
 
-class Membership(Model):
+class Membership(model_concerns.ModelConcerns, Model):
     __fillable__  = ['drinker_id', 'group_id', 'type']
     __table__     = 'memberships'
     __sti_type__  = None
