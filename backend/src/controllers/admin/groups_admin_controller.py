@@ -12,7 +12,7 @@ VALID_MEMBERSHIP_TYPES = ['primary', 'ephemeral']
 ALLOWED_MEMBERSHIP_FIELDS = ['drinker_id', 'group_id', 'type', 'admin']
 REQUIRED_MEMBERSHIP_FIELDS = ['drinker_id', 'group_id', 'type']
 NAME_CHAR_LIMIT = 10
-BIO_CHAR_LIMIT = 22
+BIO_CHAR_LIMIT = 24
 
 
 @groups_admin.route('', methods=['GET'])
@@ -77,5 +77,6 @@ def edit_membership(group, membership, data):
 @verify_presence(required=REQUIRED_MEMBERSHIP_FIELDS)
 @verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': [True, False]})
 def create_membership(group, data):
-    membership = membership.create(data)
+    Membership.create(data)
+    membership = Membership.where('group_id', '=', group.id).order_by('id', 'desc').limit(1).first()
     return jsonify(membership.serialize())

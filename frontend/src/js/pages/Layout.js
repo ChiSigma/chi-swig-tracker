@@ -32,14 +32,13 @@ export default class Layout extends React.Component {
 
             if (this.state.view === 'admin') {
                 return (
-                    <h1>YAyyyyyyyyyyyy</h1>
+                    <AdminContainer context={ this.props.context } />
                 )
 
             } else if (this.state.view === 'dashboard') {
                 return ([
                     <Subheader context={ this.props.context }/>,
                     <CardContainer context={ this.props.context }/>,
-                    <Footer context={ this.props.context }/>,
                 ])
             }
         }.bind(this);
@@ -48,6 +47,7 @@ export default class Layout extends React.Component {
             <div>
                 <Navigation />
                 { toggleViews() }
+                <Footer context={ this.props.context }/>
             </div>
         )
     }

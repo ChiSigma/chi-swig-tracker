@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import AppContext from '../app-context';
+import { NotificationManager } from 'react-notifications';
 
 export default class AppProvider extends Component {
     constructor() {
@@ -33,10 +34,66 @@ export default class AppProvider extends Component {
             },
             admin: {
                 hasChanged: false,
-                drinkers: {},
-                groups: {},
-                group_memberships: {},
-                drink_memberships: {}
+                fetch: async function(type) {
+                    const objs = await fetch('api/admin/' + type, { credentials: 'same-origin' });
+                    return objs[type] || [];
+                },
+                fetchSuggestions: async function(type) {
+                    const objs = await fetch('api/' + type, { credentials: 'same-origin' });
+                    const suggestions = {open: [], primary: [], ephemeral: [], private: [], all: {}};
+                    objs[type].forEach((obj) => {
+                        this.state.cache[type][obj.id] = obj
+                        suggestions[obj.membership_policy].push(obj)
+                        suggestions.all[obj.id] = obj
+                    });
+
+                    return suggestions;
+                }.bind(this),
+                fetchMemberships: async function(type, obj) {
+                    const memberships = await fetch('api/admin/' + type + '/' + obj.id + '/memberships', { credentials: 'same-origin' });
+                    return memberships;
+                },
+                editMembership: async function(type, obj, membership) {
+                    const method = membership.id && membership.id !== 'unsaved' ? 'PUT' : 'POST';
+                    const action = membership.id && membership.id !== 'unsaved' ? 'updated' : 'created';
+                    let url = 'api/admin/' + type + '/' + obj.id + '/memberships'
+                    if (method === 'PUT') {
+                        url += '/' + membership.id
+                    }
+                    const resp = await fetch(url, {
+                                            method: method,
+                                            credentials: 'same-origin',
+                                            headers: {'Content-Type':'application/json'},
+                                            body: JSON.stringify(membership)
+                                        });
+                    if (!resp.error) {
+                        NotificationManager.success('Successfully ' + action + ' membership!');
+                        return resp;
+                    }
+                },
+                deleteMembership: async function(type, obj, membership) {
+                    let url = 'api/admin/' + type + '/' + obj.id + '/memberships/' + membership.id
+                    const resp = await fetch(url, {
+                                            method: 'DELETE',
+                                            credentials: 'same-origin'
+                                        });
+                    if (!resp.error) {
+                        NotificationManager.success('Successfully deleted membership!');
+                        return resp;
+                    }
+                },
+                edit: async function(type, obj) {
+                    const resp = await fetch('api/admin/' + type + '/' + obj.id, {
+                                            method: 'PUT',
+                                            credentials: 'same-origin',
+                                            headers: {'Content-Type':'application/json'},
+                                            body: JSON.stringify(obj)
+                                        });
+                    if (!resp.error) {
+                        NotificationManager.success('Successfully updated ' + obj.name + '!');
+                        return resp;
+                    }
+                }
             },
             state: {
                 sortEventType: 1,
@@ -60,6 +117,7 @@ export default class AppProvider extends Component {
                         state.view = 'admin';
                     } else if (state.view === 'admin') {
                         if (admin.hasChanged) {
+                            // Never hitting this block on purpose. Maybe change?
                             window.location.reload();
                         } else {
                             state.view = 'dashboard';

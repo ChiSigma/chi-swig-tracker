@@ -17,8 +17,8 @@ class Drinker(model_concerns.ModelConcerns, drinker_concerns.DrinkerConcerns, Dr
     __hidden__   = ['events', 'superuser', 'ephemeral_memberships', 'profile_pivot_increment', 'profile_pivot_type', 'email', 'primary_membership']
     __touches__  = ['primary_group']
 
-    __admin__    = ['name', 'profile_photos', 'bio_line', 'privacy_setting', 'membership_policy']
-    __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line']
+    __admin__    = ['name', 'profile_photos', 'bio_line', 'privacy_setting', 'membership_policy', 'groups_can_edit']
+    __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line', 'membership_policy']
     __protect__  = ['superuser']
     __appends__  = ['profile_photo', 'primary_group', 'groups_can_edit']
 
@@ -97,7 +97,8 @@ class Drinker(model_concerns.ModelConcerns, drinker_concerns.DrinkerConcerns, Dr
 
     @accessor
     def profile_photos(self):
-        return self.get_raw_attribute('profile_photos').split(',')
+        raw_profile_photos = self.get_raw_attribute('profile_photos')
+        return raw_profile_photos.split(',') if raw_profile_photos else ['default.png']
 
     @accessor
     def profile_photo(self):
@@ -115,22 +116,5 @@ class Drinker(model_concerns.ModelConcerns, drinker_concerns.DrinkerConcerns, Dr
     def is_dry(self):
         return self.events().where('event_type_id', '=', 1).created_within(time='24h').count() == 0
 
-    def is_admin(self):
-        return self.id in self.primary_group.admins
-
-    def event_counts(self):
-        event_sums = {e_type.name: {window[0]: 0 for window in event_type.EventType.COUNT_WINDOWS} for e_type in event_type.EventType.all()}
-        for window in event_type.EventType.COUNT_WINDOWS:
-            window_name = window[0]
-            time = window[1]
-            events_in_window = self.events() \
-                                            .raw(raw_statement='count(*) as count, event_type_id') \
-                                            .created_within(time=time) \
-                                            .group_by('event_type_id')
-
-            for event_obj in events_in_window.with_('event_type').get():
-                count = event_obj.count
-                event_type_name = event_obj.event_type.name
-
-                event_sums[event_type_name][window_name] += count
-        return event_sums
+    def is_admin(self, group_id):
+        return group_id == self.primary_group.id and (self.id in self.primary_group.admins)

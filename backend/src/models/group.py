@@ -14,7 +14,7 @@ class Group(model_concerns.ModelConcerns, group_concerns.GroupConcerns, GroupAut
     __hidden__   = ['primary_drinkers', 'primary_memberships', 'ephemeral_memberships', 'ephemeral_drinkers', 'admins']
 
     __admin__    = ['name', 'profile_photo', 'bio_line', 'privacy_setting', 'membership_policy'] 
-    __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line']
+    __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line', 'membership_policy']
 
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
@@ -76,6 +76,6 @@ class Group(model_concerns.ModelConcerns, group_concerns.GroupConcerns, GroupAut
     @accessor
     def profile_photo(self):
         profile_url = self.get_raw_attribute('profile_photo')
-        if profile_url == 'default.png':
+        if profile_url is None or profile_url in ['default.png', '']:
             profile_url = 'https://ui-avatars.com/api/?name={0}&background=B70000&color=fff&size=200&letters=3&uppercase=false'.format(self.name.replace(' ', '+'))
         return profile_url

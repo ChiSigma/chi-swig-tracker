@@ -11,4 +11,4 @@ class GroupConcerns(object):
         orphaned_drinkers = db.table('memberships').where('group_id', '=', self.id).where('type', '=', 'primary').lists('drinker_id')
 
         for drinker in orphaned_drinkers:
-            primary_membership.PrimaryMembership.create(_unsafe=True, drinker_id=drinker, group_id=1)
+            db.table('memberships').insert({"drinker_id": drinker, "type": "primary", "group_id": 1, "admin": False})

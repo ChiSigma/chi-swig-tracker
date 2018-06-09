@@ -11,7 +11,7 @@ ALLOWED_MEMBERSHIP_FIELDS = ['drinker_id', 'group_id', 'type', 'admin']
 REQUIRED_MEMBERSHIP_FIELDS = ['drinker_id', 'group_id', 'type']
 VALID_MEMBERSHIP_SETTINGS = ['open', 'private', 'ephemeral', 'primary']
 NAME_CHAR_LIMIT = 10
-BIO_CHAR_LIMIT = 22
+BIO_CHAR_LIMIT = 26
 
 
 @drinkers_admin.route('', methods=['GET'])
@@ -27,8 +27,8 @@ def get_drinkers(drinkers):
 @verify_char_lens(char_values={'name': NAME_CHAR_LIMIT, 'bio_line': BIO_CHAR_LIMIT})
 def edit_drinker(drinker, data):
     if 'profile_photos' in data:
-        raw_profile_photos = data['profile_photos']
-        data['profile_photos'] = ','.join([url.strip() for url in raw_profile_photos.split(',')])
+        raw_profile_photos = data['profile_photos'][0] if len(data['profile_photos']) > 0  and type(data['profile_photos']) is list else data['profile_photos']
+        data['profile_photos'] = ','.join([url.strip() for url in raw_profile_photos.split(',')]) if raw_profile_photos else None
 
     drinker.update(data)
     return jsonify(drinker.admin_serialize())
@@ -69,5 +69,6 @@ def edit_membership(drinker, membership, data):
 @verify_presence(required=REQUIRED_MEMBERSHIP_FIELDS)
 @verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': [True, False]})
 def create_membership(drinker, data):
-    membership = membership.create(data)
+    Membership.create(data)
+    membership = Membership.where('drinker_id', '=', drinker.id).order_by('id', 'desc').limit(1).first()
     return jsonify(membership.serialize())

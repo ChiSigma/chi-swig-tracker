@@ -129,6 +129,19 @@
     margin-bottom: 50px;
 }
 
+#adminContainer {
+    margin-top: 35px;
+    padding-bottom: 35px;
+}
+
+#editDrinkers {
+    margin-bottom: 20px;
+}
+
+#editGroups {
+    margin-bottom: 20px
+}
+
 .footer {
     position: fixed;
     bottom: 0;
