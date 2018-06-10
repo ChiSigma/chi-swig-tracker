@@ -41,7 +41,7 @@ lm = LoginManager(app)
 if mode != 'development':
     from .support import scheduler
     print "Starting job scheduler"
-    scheduler.scheduler.start()
+    scheduler.start()
 
 # Initialize Authentication
 from .auth.default import auth_routes
