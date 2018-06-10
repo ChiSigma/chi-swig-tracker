@@ -155,5 +155,6 @@ The sorting of the dashboard will auto-update every 30 seconds.
 | Custom back button action                                                           | 2
 | Fetch memberships on toggle                                                         | 1
 | Auto complete memberhsip forms                                                      | 1
+| Check if profile photo links are valid on save                                      | 1
 | Allow impersonation of users for superusers                                         | 2
 | Add CI to this                                                                      | 3
