@@ -19,7 +19,7 @@ def send_alert(message):
         print "No slack alert configured: {0}".format(message)
         return
 
-    payload = {"text": message}
+    payload = {"text": "{0}: {1}".format(app.config['FLASK_ENV'].upper(), message)}
     try:
         response = requests.post(
             slack_alert_url, data=json.dumps(payload),

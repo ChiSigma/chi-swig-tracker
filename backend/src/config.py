@@ -26,6 +26,7 @@ class BaseConfig(object):
     }
     AUTH_PROVIDER = 'auth0'
     SLACK_ALERTS = environ.get('SLACK_ALERTS', None)
+    FLASK_ENV = environ.get('FLASK_ENV', None)
 
 
 class DevelopmentConfig(BaseConfig):

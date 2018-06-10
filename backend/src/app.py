@@ -60,7 +60,7 @@ def handle_swig_core_exception(error):
     if isinstance(error, SwigCoreException):
         payload = error.to_dict()
         status_code = error.status_code
-    else:
+    elif type(error).__name__ != 'NotFound':
         from .support.slack_alerts import exception_alert
         app.logger.error('Unhandled Exception: %s', (error))
         exception_alert(error)
