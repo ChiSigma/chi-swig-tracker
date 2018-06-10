@@ -65,7 +65,7 @@ def delete_membership(group, membership):
 @groups_admin.route('/<int:group_id>/memberships/<int:membership_id>', methods=['PUT'])
 @has_access(id_keys={ Group: 'group_id', Membership: 'membership_id' } , inject=True)
 @inject_request_body(allowed=ALLOWED_MEMBERSHIP_FIELDS)
-@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': [True, False]})
+@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': ['true', 'false', True, False]})
 def edit_membership(group, membership, data):
     membership.update(data)
     return jsonify(membership.serialize())
@@ -75,7 +75,7 @@ def edit_membership(group, membership, data):
 @has_access(id_keys={ Group: 'group_id' } , inject=True)
 @inject_request_body(allowed=ALLOWED_MEMBERSHIP_FIELDS)
 @verify_presence(required=REQUIRED_MEMBERSHIP_FIELDS)
-@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': [True, False]})
+@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': ['true', 'false', True, False]})
 def create_membership(group, data):
     Membership.create(data)
     membership = Membership.where('group_id', '=', group.id).order_by('id', 'desc').limit(1).first()

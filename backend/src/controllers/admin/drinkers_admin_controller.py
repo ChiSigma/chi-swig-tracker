@@ -57,7 +57,7 @@ def delete_membership(drinker, membership):
 @drinkers_admin.route('/<int:drinker_id>/memberships/<int:membership_id>', methods=['PUT'])
 @has_access(id_keys={ Drinker: 'drinker_id', Membership: 'membership_id' } , inject=True)
 @inject_request_body(allowed=ALLOWED_MEMBERSHIP_FIELDS)
-@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': [True, False]})
+@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': ['true', 'false', True, False]})
 def edit_membership(drinker, membership, data):
     membership.update(data)
     return jsonify(membership.serialize())
@@ -67,7 +67,7 @@ def edit_membership(drinker, membership, data):
 @has_access(id_keys={ Drinker: 'drinker_id' } , inject=True)
 @inject_request_body(allowed=ALLOWED_MEMBERSHIP_FIELDS)
 @verify_presence(required=REQUIRED_MEMBERSHIP_FIELDS)
-@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': [True, False]})
+@verify_enums(enumerated_values={'type': VALID_MEMBERSHIP_TYPES, 'admin': ['true', 'false', True, False]})
 def create_membership(drinker, data):
     Membership.create(data)
     membership = Membership.where('drinker_id', '=', drinker.id).order_by('id', 'desc').limit(1).first()

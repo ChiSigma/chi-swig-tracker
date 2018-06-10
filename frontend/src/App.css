@@ -151,12 +151,40 @@
     text-align: center;
 }
 
+#github-help {
+    color: white;
+    margin-right: 20px;
+}
+
+#github-help-container {
+    text-align: right;
+    width: 100%;
+}
+
+.white-icons i {
+    color: white;
+}
+
+footer .social-icons {
+    font-size: 1.5em;
+}
+
+footer .social-icons i {
+    padding-right: 8px;
+}
+
 .trademark {
     color: white;
+    text-align: left;
+    margin-left: 20px;
+    width: 100%;
 }
 
 .trademark-active {
     color: green;
+    text-align: left;
+    margin-left: 20px;
+    width: 100%;
 }
 
 /* Backgrounds */

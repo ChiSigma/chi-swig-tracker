@@ -25,7 +25,7 @@ class MembershipAuthMixin(object):
     @classmethod
     def create(cls, _attributes=None, **attributes):
         cls.__undeclared_ephemeral_concern(None, _attributes)
-        cls.__multi_ephemeral_member_concern(None, _attributes)
+        cls.__multi_member_concern(None, _attributes)
         cls.__admin_primary_only_concern(None, _attributes)
         cls.__single_primary_concern(None, _attributes)
 
@@ -46,7 +46,7 @@ class MembershipAuthMixin(object):
 
     def update(self, _attributes=None, **attributes):
         self.__undeclared_ephemeral_concern(self, _attributes)
-        self.__multi_ephemeral_member_concern(self, _attributes)
+        self.__multi_member_concern(self, _attributes)
         self.__admin_primary_only_concern(self, _attributes)
         self.__single_primary_concern(self, _attributes)
 
@@ -104,11 +104,13 @@ class MembershipAuthMixin(object):
 
     @staticmethod
     def __admin_to_create_admin(self, attributes):
-        group_id = attributes['group_id'] if 'group_id' in attributes else (self.group_id if self else None)
+        group_id = int(attributes['group_id']) if 'group_id' in attributes else (self.group_id if self else None)
         is_admin = False if current_user.is_anonymous else current_user.is_admin(group_id)
         is_creating_admin = attributes.get('admin', False) and not self
-        is_editing_admin = self and attributes.get('admin', self.admin) != self.admin
-        if (is_creating_admin or is_editing_admin) and not is_admin:
+        is_editing_group_admin = self and attributes.get('admin', self.admin) != self.admin
+        is_changing_group = self and attributes.get('admin', self.admin) and group_id != self.group_id
+
+        if (is_creating_admin or is_editing_group_admin or is_changing_group) and not is_admin:
             raise ForbiddenAccessException('make an admin for group {0}'.format(group_id))
 
     @staticmethod
@@ -126,17 +128,20 @@ class MembershipAuthMixin(object):
         if membership_type != 'primary' and is_admin: raise InvalidRequestException('Cannot be admin for type: {0}'.format(membership_type))
 
     @staticmethod
-    def __multi_ephemeral_member_concern(self, attributes):
-        from src.models import EphemeralMembership
+    def __multi_member_concern(self, attributes):
+        from src.models import EphemeralMembership, PrimaryMembership
         membership_type = attributes['type'] if 'type' in attributes else (self.type if self else None)
         if membership_type != 'ephemeral' or self: return
 
         drinker_id = int(attributes['drinker_id']) if 'drinker_id' in attributes else (self.drinker_id if self else 0)
         group_id = int(attributes['group_id']) if 'group_id' in attributes else (self.group_id if self else None)
         current_ephemeral_groups = EphemeralMembership.where('drinker_id', '=', drinker_id).lists('group_id')
+        primary_memberships = PrimaryMembership.where('drinker_id', '=', drinker_id).with_('group').get()
+        has_no_group = len(primary_memberships) == 0
+        primary_group_id = 0 if has_no_group else int(primary_memberships[0].group_id)
 
-        if group_id in current_ephemeral_groups:
-            raise InvalidRequestException('Cannot join an ephemeral group more than once')
+        if group_id in current_ephemeral_groups or group_id == primary_group_id:
+            raise InvalidRequestException('Cannot join a group more than once')
 
     @staticmethod
     def __single_primary_concern(self, attributes):
@@ -165,4 +170,4 @@ class MembershipAuthMixin(object):
                 EphemeralMembership.where('drinker_id', '=', drinker_id).where('group_id', '=', group_id).delete()
 
         elif membership_type == 'ephemeral':
-            if primary_group_id == group_id: raise OrphanException('Drinker {0}'.format(self.drinker_id))
+            if primary_group_id == group_id: raise OrphanException('Drinker {0}'.format(drinker_id))
