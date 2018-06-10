@@ -9,6 +9,7 @@ from flask_login import login_user, logout_user, current_user
 from flask_orator import jsonify
 from functools import wraps
 from src.support.utils import keydefaultdict
+from src.support.slack_alerts import new_user_alert
 
 auth_routes = Blueprint('auth_routes', __name__)
 
@@ -28,6 +29,8 @@ def callback_handling():
   if drinker is None:
     with Drinker.transaction():
       drinker = Drinker.create(_unsafe=True, name=name, email=email)
+      new_user_alert(name, email)
+
 
   login_user(drinker, True)
   return redirect(url_for('index'))

@@ -25,6 +25,7 @@ class BaseConfig(object):
         }
     }
     AUTH_PROVIDER = 'auth0'
+    SLACK_ALERTS = environ.get('SLACK_ALERTS', None)
 
 
 class DevelopmentConfig(BaseConfig):
