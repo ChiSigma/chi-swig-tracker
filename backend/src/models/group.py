@@ -10,11 +10,11 @@ from orator.orm import has_many, has_many_through, accessor
 
 
 class Group(model_concerns.ModelConcerns, group_concerns.GroupConcerns, GroupAuthMixin, Model):
-    __fillable__ = ['name', 'profile_photo', 'bio_line', 'privacy_setting', 'membership_policy', 'num_days_dry', 'max_days_dry']
+    __fillable__ = ['name', 'profile_photo', 'bio_line', 'privacy_setting', 'membership_policy', 'num_days_dry', 'max_days_dry', 'total_days_dry']
     __hidden__   = ['primary_drinkers', 'primary_memberships', 'ephemeral_memberships', 'ephemeral_drinkers', 'admins']
 
     __admin__    = ['name', 'profile_photo', 'bio_line', 'privacy_setting', 'membership_policy'] 
-    __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line', 'membership_policy']
+    __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line', 'membership_policy', 'total_days_dry']
 
     @staticmethod
     def sort_by_event(event_type=None, time=None, order=None, in_scope=None):

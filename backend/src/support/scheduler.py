@@ -14,8 +14,9 @@ def update_drinkers_num_days_dry():
         with Drinker.transaction():
             if d.id not in wet_drinkers:
                 dry_day_count = d.num_days_dry + 1
+                total_day_count = d.total_days_dry + 1
                 print "Increasing {0}'s Dry Streak to {1} days.".format(d.name, dry_day_count)
-                d.update(_unsafe=True, num_days_dry=dry_day_count)
+                d.update(_unsafe=True, num_days_dry=dry_day_count, total_days_dry=total_day_count)
 
                 if dry_day_count > d.max_days_dry:
             	   d.update(_unsafe=True, max_days_dry=dry_day_count)
@@ -36,8 +37,9 @@ def update_groups_num_days_dry():
         with Group.transaction():
             if len(drinkers.intersection(wet_drinkers)) == 0:
                 dry_day_count = g.num_days_dry + 1
+                total_day_count = g.total_days_dry + 1
                 print "Increasing {0}'s Dry Streak to {1} days.".format(g.name, dry_day_count)
-                g.update(_unsafe=True, num_days_dry=dry_day_count)
+                g.update(_unsafe=True, num_days_dry=dry_day_count, total_days_dry=total_day_count)
 
                 if dry_day_count > g.max_days_dry:
                     g.update(_unsafe=True, max_days_dry=dry_day_count)

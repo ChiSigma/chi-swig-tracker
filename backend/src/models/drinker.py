@@ -13,12 +13,12 @@ from orator.orm import has_many, has_one, accessor
 
 
 class Drinker(model_concerns.ModelConcerns, drinker_concerns.DrinkerConcerns, DrinkerAuthMixin, UserMixin, Model):
-    __fillable__ = ['name', 'email', 'profile_photos', 'bio_line', 'privacy_setting', 'membership_policy', 'num_days_dry', 'max_days_dry']
+    __fillable__ = ['name', 'email', 'profile_photos', 'bio_line', 'privacy_setting', 'membership_policy', 'num_days_dry', 'max_days_dry', 'total_days_dry']
     __hidden__   = ['events', 'superuser', 'ephemeral_memberships', 'profile_pivot_increment', 'profile_pivot_type', 'email', 'primary_membership']
     __touches__  = ['primary_group']
 
     __admin__    = ['name', 'profile_photos', 'bio_line', 'privacy_setting', 'membership_policy', 'groups_can_edit']
-    __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line', 'membership_policy']
+    __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line', 'membership_policy', 'total_days_dry']
     __protect__  = ['superuser']
     __appends__  = ['profile_photo', 'primary_group', 'groups_can_edit']
 
