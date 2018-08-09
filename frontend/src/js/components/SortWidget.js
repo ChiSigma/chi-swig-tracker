@@ -18,7 +18,7 @@ export default class SortWidget extends React.Component {
                 <select onChange={this.changeSort.bind(this)} >
                     <option value={ [1, '*'] }>Sort By: Total Drinks All Time</option>
                     <option value={ [1, '7d'] }>Sort By: Total Drinks This Week</option>
-                    <option value={ [1, '24h'] }>Sort By: Total Drinks Today</option>
+                    <option value={ [1, '12h'] }>Sort By: Total Drinks Today</option>
                 </select>
             </div>
         )
