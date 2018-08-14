@@ -31,22 +31,12 @@ def sort_drinkers(drinkers):
     return jsonify(sorted_drinker_ids)
 
 
-@drinkers.route('/<int:drinker_id>/is_public', methods=['PUT'])
-def update_is_public(drinker_id):
-    # TODO :: Not the correct thing anymore
-    drinker = Drinker.find_or_fail(drinker_id)
-    body = request.get_json()
-    drinker.update(is_public=body['is_public'])
-
-    return jsonify(drinker)
-
-
 @drinkers.route('/<int:drinker_id>/events/<int:event_type_id>', methods=['POST'])
 @has_access(model=Drinker, scope='member', id_key='drinker_id')
 def add_event(drinker_id, event_type_id):
     drinker = Drinker.find_or_fail(drinker_id)
     event_type = EventType.find_or_fail(event_type_id)
-    event = drinker.events().create(event_type_id=event_type_id)
+    event = Event.create(event_type_id=event_type_id, drinker_id=drinker_id)
 
     return jsonify(event)
 
@@ -57,7 +47,7 @@ def delete_event(drinker_id, event_type_id):
     # Need to add group member auth too
     drinker = Drinker.find_or_fail(drinker_id)
     event_type = EventType.find_or_fail(event_type_id)
-    one_deleted = drinker.events().where('event_type_id', '=', event_type_id).created_within('30m').last().delete()
+    one_deleted = Event.where('drinker_id', '=', drinker_id).where('event_type_id', '=', event_type_id).created_within('30m').last().delete()
 
     if not one_deleted: raise NoModelException('Could not delete. 0 {0} events within a 30m window.'.format(event_type.name))
     return jsonify(one_deleted)

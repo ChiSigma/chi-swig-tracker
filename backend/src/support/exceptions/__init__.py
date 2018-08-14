@@ -1,4 +1,5 @@
 from swig_core_exception import SwigCoreException
+from drink_count_exception import DrinkCountException
 from forbidden_access_exception import ForbiddenAccessException
 from no_model_exception import NoModelException
 from invalid_enum_exception import InvalidEnumException
