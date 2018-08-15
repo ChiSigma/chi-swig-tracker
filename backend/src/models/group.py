@@ -17,18 +17,23 @@ class Group(model_concerns.ModelConcerns, group_concerns.GroupConcerns, GroupAut
     __public__   = ['name', 'profile_photo', 'num_days_dry', 'max_days_dry', 'privacy_setting', 'bio_line', 'membership_policy', 'total_days_dry']
 
     @staticmethod
-    def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
+    def sort_by_event(event_type=None, time=None, order=None, in_scope=None, normalized=False):
         in_scope_group_ids = Group.in_scope().lists('id') if in_scope is None else in_scope.lists('id')
-        sorted_group_ids = event.Event \
+        sorted_groups = event.Event \
                                     .join('memberships', 'events.drinker_id', '=', 'memberships.drinker_id') \
+                                    .join('groups', 'memberships.group_id', '=', 'groups.id') \
                                     .where('memberships.type', '=', 'primary') \
-                                    .raw(raw_statement='count(*) as count, memberships.group_id as group_id') \
+                                    .raw(raw_statement='count(*) as count, memberships.group_id, groups.created_at') \
                                     .where('events.event_type_id', '=', event_type) \
-                                    .where_in('group_id', in_scope_group_ids) \
+                                    .where_in('memberships.group_id', in_scope_group_ids) \
                                     .created_within(time=time, table_name='events.') \
-                                    .group_by('group_id') \
+                                    .group_by('memberships.group_id', 'groups.created_at') \
                                     .order_by('count', order) \
-                                    .get().map(lambda e: e.group_id)
+                                    .get()
+
+        if normalized: sorted_groups = Group.normalized_sort(sorted_groups, order=order, time=time)
+        sorted_group_ids = map(lambda e: e.group_id, sorted_groups)
+
         if order == 'DESC':
             append_table = in_scope_group_ids
             base_table = sorted_group_ids

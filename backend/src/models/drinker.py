@@ -23,18 +23,21 @@ class Drinker(model_concerns.ModelConcerns, drinker_concerns.DrinkerConcerns, Dr
     __appends__  = ['profile_photo', 'primary_group', 'groups_can_edit']
 
     @staticmethod
-    def sort_by_event(event_type=None, time=None, order=None, in_scope=None):
+    def sort_by_event(event_type=None, time=None, order=None, in_scope=None, normalized=False):
         # Default this to all in scope with current auth user
         in_scope_drinker_ids = Drinker.in_scope().lists('id') if in_scope is None else in_scope.lists('id')
-        sorted_drinker_ids = event.Event \
-                                    .raw(raw_statement='count(*) as count, drinker_id') \
-                                    .where('event_type_id', '=', event_type) \
-                                    .where_in('drinker_id', in_scope_drinker_ids) \
-                                    .created_within(time=time) \
-                                    .group_by('drinker_id') \
+        sorted_drinkers = event.Event \
+                                    .join('drinkers', 'drinkers.id', '=', 'events.drinker_id') \
+                                    .raw(raw_statement='count(*) as count, drinkers.id, drinkers.created_at') \
+                                    .where('events.event_type_id', '=', event_type) \
+                                    .where_in('drinkers.id', in_scope_drinker_ids) \
+                                    .created_within(time=time, table_name='events.') \
+                                    .group_by('drinkers.id', 'drinkers.created_at') \
                                     .order_by('count', order) \
-                                    .get().map(lambda e: e.drinker_id)
+                                    .get()
 
+        if normalized: sorted_drinkers = Drinker.normalized_sort(sorted_drinkers, order=order, time=time)
+        sorted_drinker_ids = map(lambda e: e.id, sorted_drinkers)
 
         if order == 'DESC':
             append_table = in_scope_drinker_ids

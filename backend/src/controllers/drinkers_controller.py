@@ -26,7 +26,7 @@ def sort_drinkers(drinkers):
     order = request.args.get('order', 'DESC')
     time = request.args.get('time', '*')
     # Scoping is handled @ the model level
-    sorted_drinker_ids = Drinker.sort_by_event(event_type=event_type, time=time, order=order, in_scope=drinkers)
+    sorted_drinker_ids = Drinker.sort_by_event(event_type=event_type, time=time, order=order, in_scope=drinkers, normalized=True)
 
     return jsonify(sorted_drinker_ids)
 

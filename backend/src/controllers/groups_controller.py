@@ -24,7 +24,7 @@ def sort_groups(groups):
     event_type = request.args.get('event_type_id', 1)
     order = request.args.get('order', 'DESC')
     time = request.args.get('time', '*')
-    sorted_group_ids = Group.sort_by_event(event_type=event_type, time=time, order=order, in_scope=groups)
+    sorted_group_ids = Group.sort_by_event(event_type=event_type, time=time, order=order, in_scope=groups, normalized=True)
 
     return jsonify(sorted_group_ids)
 
