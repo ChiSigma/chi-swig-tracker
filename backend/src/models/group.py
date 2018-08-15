@@ -23,7 +23,7 @@ class Group(model_concerns.ModelConcerns, group_concerns.GroupConcerns, GroupAut
                                     .join('memberships', 'events.drinker_id', '=', 'memberships.drinker_id') \
                                     .join('groups', 'memberships.group_id', '=', 'groups.id') \
                                     .where('memberships.type', '=', 'primary') \
-                                    .raw(raw_statement='count(*) as count, memberships.group_id, groups.created_at') \
+                                    .raw(raw_statement='count(*) as count, count(DISTINCT memberships.drinker_id) as n, memberships.group_id, groups.created_at') \
                                     .where('events.event_type_id', '=', event_type) \
                                     .where_in('memberships.group_id', in_scope_group_ids) \
                                     .created_within(time=time, table_name='events.') \

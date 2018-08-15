@@ -33,7 +33,7 @@ class Model(ModelSerializer, db.Model):
     @staticmethod
     def normalized_sort(models, time=None, order=None):
         def normalized_comparison_factor(model):
-            return float(model.count / Model.normalization_factor(time=time, created_at=model.created_at))
+            return float(model.count / Model.normalization_factor(time=time, created_at=model.created_at) / model.n)
 
         reverse = True if order == 'DESC' else False
         return sorted(models, key=normalized_comparison_factor, reverse=reverse)

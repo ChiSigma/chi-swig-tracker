@@ -28,7 +28,7 @@ class Drinker(model_concerns.ModelConcerns, drinker_concerns.DrinkerConcerns, Dr
         in_scope_drinker_ids = Drinker.in_scope().lists('id') if in_scope is None else in_scope.lists('id')
         sorted_drinkers = event.Event \
                                     .join('drinkers', 'drinkers.id', '=', 'events.drinker_id') \
-                                    .raw(raw_statement='count(*) as count, drinkers.id, drinkers.created_at') \
+                                    .raw(raw_statement='count(*) as count, count(DISTINCT drinkers.id) as n, drinkers.id, drinkers.created_at') \
                                     .where('events.event_type_id', '=', event_type) \
                                     .where_in('drinkers.id', in_scope_drinker_ids) \
                                     .created_within(time=time, table_name='events.') \
