@@ -107,7 +107,7 @@ class Drinker(model_concerns.ModelConcerns, drinker_concerns.DrinkerConcerns, Dr
     def profile_photo(self):
         event_count = self.events() \
                                     .where('event_type_id', '=', self.profile_pivot_type) \
-                                    .created_within(time='24h') \
+                                    .created_within(time='12h') \
                                     .count()
         photo_index = min(int(event_count / self.profile_pivot_increment), len(self.profile_photos) - 1)
         photo_url = self.profile_photos[photo_index]
