@@ -5,7 +5,7 @@ long challenge tracking various events amongst our members. But then we decided,
 everyone? [So that's what we did.](https://swig.chisigma.co)
 
 Some key items:
-* Sorting is normalized. It is the Drinker/Group event count divided by the minimum of the total seconds from (now - selected sort window) or the (now - `created_at`). This allows Groups and Drinkers joining mid-way through our year long sprint to be fairly sorted.
+* Sorting is normalized. It is the Drinker/Group event count divided by the minimum of the total seconds from (now - selected sort window) or the (now - `created_at`), and then divided by the n of Drinkers/Groups. This allows Groups and Drinkers joining mid-way through our year long sprint to be fairly sorted.
 * The total days that we've had this app running is shown in the header.
 * You can hide event counts from public view, but when you are sorted, you will be sorted on your true event count.
 * x event in a day is the count of events in the past 12 hours. It used to be set to 24, but it made things a bit
