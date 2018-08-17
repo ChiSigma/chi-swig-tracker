@@ -29,10 +29,10 @@ export default class CardContainer extends React.Component {
         this.handleClose = this.handleClose.bind(this);
     }
 
-    async fetchSort(sortEventType=this.appState().sortEventType, sortTime=this.appState().sortTime) {
+    async fetchSort(sortEventType=this.appState().sortEventType, sortTime=this.appState().sortTime, sortNormalized=this.appState().sortNormalized) {
         const filterQuery = this.appState().filterQuery();
         const profileType = this.appState().profileType;
-        return await fetch('api/' + profileType + '/sort?time=' + sortTime + '&event_type_id=' + sortEventType + '&' + filterQuery, {credentials: "same-origin"});
+        return await fetch('api/' + profileType + '/sort?time=' + sortTime + '&normalized=' + sortNormalized + '&event_type_id=' + sortEventType + '&' + filterQuery, {credentials: "same-origin"});
     }
 
     async updateSort(newSortEventType=false, newSortTime=false) {

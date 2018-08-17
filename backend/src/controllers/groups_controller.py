@@ -22,9 +22,10 @@ def get_version(groups):
 def sort_groups(groups):
     # Scoping is handled at the model level
     event_type = request.args.get('event_type_id', 1)
+    normalized = request.args.get('normalized', 'false') == 'true'
     order = request.args.get('order', 'DESC')
     time = request.args.get('time', '*')
-    sorted_group_ids = Group.sort_by_event(event_type=event_type, time=time, order=order, in_scope=groups, normalized=True)
+    sorted_group_ids = Group.sort_by_event(event_type=event_type, time=time, order=order, in_scope=groups, normalized=normalized)
 
     return jsonify(sorted_group_ids)
 

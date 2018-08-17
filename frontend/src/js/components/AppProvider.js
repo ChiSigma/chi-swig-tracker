@@ -99,6 +99,7 @@ export default class AppProvider extends Component {
                 sortEventType: 1,
                 view: 'dashboard',
                 sortTime: '*',
+                sortNormalized: false,
                 autoRefresh: false,
                 profileType: 'drinkers',
                 groups: [],
@@ -138,9 +139,10 @@ export default class AppProvider extends Component {
                     this.pushState();
                     this.setState({ state });
                 }.bind(this),
-                updateSort: function(sortEventType=1, sortTime='*') {
+                updateSort: function(sortEventType=1, sortTime='*', sortNormalized=false) {
                     let state = { ...this.state.state };
                     state.sortEventType = sortEventType;
+                    state.sortNormalized = sortNormalized;
                     state.sortTime = sortTime;
                     this.pushState();
                     this.setState({ state });
@@ -173,6 +175,7 @@ export default class AppProvider extends Component {
                     const curAppState = this.state.state;
                     if (curAppState.sortTime !== prevAppState.sortTime) return true;
                     if (curAppState.sortEventType !== prevAppState.sortEventType) return true;
+                    if (curAppState.sortNormalized !== prevAppState.sortNormalized) return true;
                     if (curAppState.profileType !== prevAppState.profileType) return true;
                     if (curAppState.version.version !== prevAppState.version.version) return true;
                     if (curAppState.drinkers.sort().toString() !== prevAppState.drinkers.sort().toString()) return true;
