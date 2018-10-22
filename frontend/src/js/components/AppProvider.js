@@ -114,7 +114,7 @@ export default class AppProvider extends Component {
                     let state = { ...this.state.state };
                     let admin = { ...this.state.admin };
 
-                    if (state.view === 'dashboard') { 
+                    if (state.view === 'dashboard') {
                         state.view = 'admin';
                     } else if (state.view === 'admin') {
                         if (admin.hasChanged) {
@@ -228,9 +228,8 @@ export default class AppProvider extends Component {
 
     async componentWillMount() {
         const me = await this.fetchMe();
-        const initialGroup = me.primary_group ? me.primary_group.id : 2;
         let state = { ...this.state.state };
-        state.groups = [initialGroup];
+        state.groups = me.primary_group ? [me.primary_group.id] : [];
         state.isHydrated = true;
 
         let auth = { ...this.state.auth };
@@ -255,7 +254,7 @@ export default class AppProvider extends Component {
     peekState() {
         const state = { ...this.state.state }
         return state.previousStates[state.previousStates.length - 1] || {};
-    
+
     }
 
     popState() {
@@ -272,7 +271,7 @@ export default class AppProvider extends Component {
         let query = 'api/' + type + '?ids=' + ids.join(',')
         if (filters) query += ('&' + filters);
         const objs = await fetch(query, {credentials: 'same-origin'})
-        
+
         return objs[type]
     }
 

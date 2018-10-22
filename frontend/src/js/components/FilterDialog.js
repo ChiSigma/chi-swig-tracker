@@ -38,7 +38,7 @@ class DialogSelect extends React.Component {
   }
 
   handleClickOpen = () => {
-    this.setState({ 
+    this.setState({
       open: true,
       groups: this.appState().groups.join(','),
       drinkers: this.appState().drinkers.join(','),
@@ -78,7 +78,7 @@ class DialogSelect extends React.Component {
             );
 
     return (
-      <div>
+      <div className="filterDialog">
         <Button onClick={this.handleClickOpen}>Open filter dialog</Button>
         <Dialog
           disableBackdropClick
@@ -86,7 +86,7 @@ class DialogSelect extends React.Component {
           maxWidth="xs"
           fullWidth={ true }
           open={this.state.open}
-          onClose={this.handleClose}  
+          onClose={this.handleClose}
           classes={ {paper: classes.paper} }
         >
           <DialogTitle>Select the Desired Filters{ limitedWarning }</DialogTitle>
