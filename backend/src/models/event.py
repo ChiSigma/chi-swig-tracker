@@ -8,7 +8,8 @@ from orator.orm import belongs_to, scope
 
 
 class Event(model_concerns.ModelConcerns, event_concerns.EventConcerns, EventAuthMixin, model.Model):
-    __fillable__ = ['event_type_id', 'drinker_id']
+    __fillable__ = ['event_type_id', 'drinker_id', 'location']
+    __public__   = ['location']
     __touches__ = ['drinker']
 
     @belongs_to

@@ -3,10 +3,11 @@
  */
 import React from 'react';
 import { NotificationManager } from 'react-notifications';
+import { geolocated } from 'react-geolocated';
 import EventsTable from './EventsTable';
 import AppContext from '../app-context';
 
-export default class ProfileCard extends React.Component {
+class ProfileCard extends React.Component {
     constructor(props) {
         super(props);
 
@@ -26,11 +27,24 @@ export default class ProfileCard extends React.Component {
         const editable = await this.auth().isEditable(this.props.profile);
         this.setState({eventData: events['counts'], isLimited: events['is_limited'], editable})
     }
-    
+
+    async fetchLocation() {
+
+    }
+
     async newDrinkEvent(eventTypeID) {
+        const location = { location: 'unknown' }
+        if (this.props.isGeolocationAvailable && this.props.isGeolocationEnabled) {
+            const latitude = this.props.coords.latitude;
+            const longitude = this.props.coords.longitude;
+            location.location = latitude + ',' + longitude
+        }
+
         const response = await fetch('api/drinkers/' + this.props.profile['id'] + '/events/' + eventTypeID, {
             method: this.state.upvote ? 'POST' : 'DELETE',
-            credentials: 'same-origin'
+            credentials: 'same-origin',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(location)
         });
         const deleteOrSave = this.state.upvote ? 'save' : 'delete';
         if (!response.error) {
@@ -93,10 +107,10 @@ export default class ProfileCard extends React.Component {
                     <div className="bg-white border border-dark rounded m-1 p-2">
                         <AppContext.Consumer>
                             {(context) => (
-                                <EventsTable 
-                                    classes={ tableClasses } 
+                                <EventsTable
+                                    classes={ tableClasses }
                                     profileType={ this.appState().profileType }
-                                    isEditable={ this.isEditable.bind(this) } 
+                                    isEditable={ this.isEditable.bind(this) }
                                     isUpvoteMode={ this.isUpvoteMode.bind(this) }
                                     newDrinkEvent={ this.newDrinkEvent.bind(this) }
                                     eventTypes={ this.props.eventTypes }
@@ -114,3 +128,7 @@ export default class ProfileCard extends React.Component {
         )
     }
 }
+
+export default geolocated({
+    watchPosition: true,
+})(ProfileCard)

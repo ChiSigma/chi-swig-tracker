@@ -1,7 +1,7 @@
 from flask import Blueprint, request, g
 from flask_orator import jsonify
 from src.support.exceptions import NoModelException
-from src.auth.default import has_access, inject_in_scope
+from src.auth.default import has_access, inject_in_scope, inject_request_body
 from src.models import Drinker, Event, EventType
 
 drinkers = Blueprint('drinkers', __name__)
@@ -34,10 +34,12 @@ def sort_drinkers(drinkers):
 
 @drinkers.route('/<int:drinker_id>/events/<int:event_type_id>', methods=['POST'])
 @has_access(model=Drinker, scope='member', id_key='drinker_id')
-def add_event(drinker_id, event_type_id):
+@inject_request_body(allowed=['location'])
+def add_event(drinker_id, event_type_id, data):
     drinker = Drinker.find_or_fail(drinker_id)
     event_type = EventType.find_or_fail(event_type_id)
-    event = Event.create(event_type_id=event_type_id, drinker_id=drinker_id)
+    location = data.get('location', 'unknown')
+    event = Event.create(event_type_id=event_type_id, drinker_id=drinker_id, location=location)
 
     return jsonify(event)
 
